@@ -12,13 +12,13 @@ import org.bouncycastle.crypto.signers.HMacDSAKCalculator
 /**
  *
  */
-class BCECSigner : Signer, SignatureVerifier {
+open class BCECSigner : SignAndVerify {
     private fun <T> signer(fn: ECDSASigner.() -> T): T {
         return ECDSASigner(HMacDSAKCalculator(SHA256Digest())).fn()
     }
 
     override fun sign(privateKey: PrivateKey, payload: ByteArray): ECDSASignature {
-        val params = ECPrivateKeyParameters(privateKey.key, privateKey.curveParams.toDomainParams())
+        val params = ECPrivateKeyParameters(privateKey.key, privateKey.curve.toDomainParams())
         val (r, s) = signer {
             init(true, params)
             generateSignature(payload)
@@ -27,7 +27,7 @@ class BCECSigner : Signer, SignatureVerifier {
     }
 
     override fun verify(publicKey: PublicKey, data: ByteArray, signature: ECDSASignature): Boolean {
-        val params = ECPublicKeyParameters(publicKey.point(), publicKey.curveParams.toDomainParams())
+        val params = ECPublicKeyParameters(publicKey.point(), publicKey.curve.toDomainParams())
         return signer {
             init(false, params)
             verifySignature(data, signature.r, signature.s)

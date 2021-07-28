@@ -2,7 +2,9 @@ package io.provenance.bip32
 
 import io.provenance.bip39.DeterministicSeed
 import io.provenance.bip44.BIP44_HARDENING_FLAG
+import io.provenance.bip44.parseBIP44Path
 import io.provenance.ec.CURVE
+import io.provenance.ec.Curve
 import io.provenance.ec.ECKeyPair
 import io.provenance.ec.PrivateKey
 import io.provenance.ec.PublicKey
@@ -11,7 +13,6 @@ import io.provenance.ec.toBigInteger
 import io.provenance.ec.toBytesPadded
 import io.provenance.ec.toECKeyPair
 import io.provenance.hashing.sha256hash160
-import org.bouncycastle.asn1.x9.X9ECParameters
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -60,7 +61,7 @@ data class ExtKey(
     val chainCode: ExtKeyChainCode,
     val keyPair: ECKeyPair
 ) {
-    private val curveParams = keyPair.privateKey.curveParams
+    private val curve = keyPair.privateKey.curve
 
     fun serialize(publicKeyOnly: Boolean = false): ByteArray {
         if (!publicKeyOnly && !(versionBytes.bytes.contentEquals(xprv)) && !(versionBytes.bytes contentEquals tprv))
@@ -89,7 +90,10 @@ data class ExtKey(
         }
 
         return bb.array()
-    }
+	}
+
+    fun childKey(path: String): ExtKey =
+        path.parseBIP44Path().fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
 
     fun childKey(index: Int, hardened: Boolean = true): ExtKey {
         if (hardened && keyPair.privateKey.key == BigInteger.ZERO) {
@@ -120,7 +124,7 @@ data class ExtKey(
         val l = lr.copyOfRange(0, PRIVATE_KEY_SIZE)
         val r = lr.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)
         val ib = l.toBigInteger()
-        require(ib != BigInteger.ZERO && ib < curveParams.n) {
+        require(ib != BigInteger.ZERO && ib < curve.n) {
             "invalid derived key"
         }
 
@@ -129,28 +133,28 @@ data class ExtKey(
         val nextChainCode = ExtKeyChainCode(r)
 
         return if (keyPair.privateKey.key != BigInteger.ZERO) {
-            val k = ib.add(keyPair.privateKey.key).mod(curveParams.n)
+            val k = ib.add(keyPair.privateKey.key).mod(curve.n)
             require(k != BigInteger.ZERO) {
                 "invalid derived key"
             }
 
             // Build child key
-            ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, PrivateKey(k, curveParams).toECKeyPair())
+            ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, PrivateKey(k, curve).toECKeyPair())
         } else {
-            val q = curveParams.g
+            val q = curve.g
                 .multiply(ib)
-                .add(curveParams.curve.decodePoint(pub))
+                .add(curve.c.decodePoint(pub))
                 .normalize()
             require(!q.isInfinity) { "invalid derived key is zeros" }
-            val pt = curveParams.curve.createPoint(q.xCoord.toBigInteger(), q.yCoord.toBigInteger()).getEncoded(false)
-            val pubk = PublicKey(pt.copyOfRange(1, pt.size).toBigInteger(), curveParams)
-            val prvk = PrivateKey(BigInteger.ZERO, curveParams)
+            val pt = curve.c.createPoint(q.xCoord.toBigInteger(), q.yCoord.toBigInteger()).getEncoded(false)
+            val pubk = PublicKey(pt.copyOfRange(1, pt.size).toBigInteger(), curve)
+            val prvk = PrivateKey(BigInteger.ZERO, curve)
             ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, ECKeyPair(prvk, pubk))
         }
     }
 
     companion object {
-        fun deserialize(bip32: ByteArray, curveParams: X9ECParameters = CURVE): ExtKey {
+        fun deserialize(bip32: ByteArray, curve: Curve = CURVE): ExtKey {
             val bb = ByteBuffer.wrap(bip32)
             val ver = bb.getByteArray(4)
             val depth = bb.get()
@@ -171,11 +175,11 @@ data class ExtKey(
             val keyPair =
                 if (hasPrivate) {
                     bb.get() // Ignore leading 0
-                    PrivateKey.fromBytes(bb.getByteArray(PRIVATE_KEY_SIZE), curveParams).toECKeyPair()
+                    PrivateKey.fromBytes(bb.getByteArray(PRIVATE_KEY_SIZE), curve).toECKeyPair()
                 } else {
                     ECKeyPair(
-                        PrivateKey(BigInteger.ZERO, curveParams),
-                        PublicKey(decompressPublicKey(bb.getByteArray(PRIVATE_KEY_SIZE + 1)), curveParams)
+                        PrivateKey(BigInteger.ZERO, curve),
+                        PublicKey(decompressPublicKey(bb.getByteArray(PRIVATE_KEY_SIZE + 1), curve), curve)
                     )
                 }
 
@@ -192,18 +196,18 @@ data class ExtKey(
 }
 
 // https://en.bitcoin.it/wiki/BIP_0032
-fun DeterministicSeed.toRootKey(publicKeyOnly: Boolean = false, testnet: Boolean = false, curveParams: X9ECParameters = CURVE): ExtKey {
+fun DeterministicSeed.toRootKey(publicKeyOnly: Boolean = false, testnet: Boolean = false, curve: Curve = CURVE): ExtKey {
     val i = hmacSha512(BITCOIN_SEED, value)
     val il = i.copyOfRange(0, PRIVATE_KEY_SIZE)
     val ir = i.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)
 
     val ib = il.toBigInteger()
-    if (ib == BigInteger.ZERO || ib >= curveParams.n) {
+    if (ib == BigInteger.ZERO || ib >= curve.n) {
         throw RuntimeException("Invalid key")
     }
 
-    val keyPair = PrivateKey.fromBytes(il, curveParams).toECKeyPair().let {
-        if (publicKeyOnly) ECKeyPair(PrivateKey(BigInteger.ZERO, curveParams), it.publicKey)
+    val keyPair = PrivateKey.fromBytes(il, curve).toECKeyPair().let {
+        if (publicKeyOnly) ECKeyPair(PrivateKey(BigInteger.ZERO, curve), it.publicKey)
         else it
     }
 

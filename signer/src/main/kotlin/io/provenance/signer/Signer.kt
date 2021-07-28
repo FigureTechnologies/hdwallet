@@ -26,6 +26,11 @@ interface SignatureVerifier {
 /**
  *
  */
+interface SignAndVerify : Signer, SignatureVerifier
+
+/**
+ *
+ */
 interface StreamSigner {
     /**
      *

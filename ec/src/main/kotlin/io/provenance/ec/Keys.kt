@@ -1,6 +1,5 @@
 package io.provenance.ec
 
-import org.bouncycastle.asn1.x9.X9ECParameters
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.math.ec.FixedPointCombMultiplier
 import java.math.BigInteger
@@ -11,8 +10,8 @@ fun ByteArray.toBigInteger() = BigInteger(1, this)
 /**
  * Returns public uncompressed key point from the given private key.
  */
-private fun publicFromPrivate(privateKey: BigInteger, curveParams: X9ECParameters): BigInteger {
-    val point = publicPointFromPrivate(privateKey, curveParams)
+private fun publicFromPrivate(privateKey: BigInteger, curve: Curve): BigInteger {
+    val point = publicPointFromPrivate(privateKey, curve)
     val encoded = point.getEncoded(false)
     return BigInteger(1, Arrays.copyOfRange(encoded, 1, encoded.size))
 }
@@ -20,46 +19,45 @@ private fun publicFromPrivate(privateKey: BigInteger, curveParams: X9ECParameter
 /**
  * Returns public key point from the given private key.
  */
-private fun publicPointFromPrivate(privateKey: BigInteger, curveParams: X9ECParameters): ECPoint {
-    val postProcessedPrivateKey = if (privateKey.bitLength() > curveParams.n.bitLength()) {
-        privateKey.mod(curveParams.n)
+private fun publicPointFromPrivate(privateKey: BigInteger, curve: Curve): ECPoint {
+    val postProcessedPrivateKey = if (privateKey.bitLength() > curve.n.bitLength()) {
+        privateKey.mod(curve.n)
     } else {
         privateKey
     }
-    return FixedPointCombMultiplier().multiply(curveParams.g, postProcessedPrivateKey)
+    return FixedPointCombMultiplier().multiply(curve.g, postProcessedPrivateKey)
 }
 
 /**
  *
  */
-class PrivateKey(val key: BigInteger, val curveParams: X9ECParameters) {
+class PrivateKey(val key: BigInteger, val curve: Curve) {
     companion object {
-        fun fromBytes(bytes: ByteArray, curveParams: X9ECParameters): PrivateKey =
-            PrivateKey(bytes.toBigInteger(), curveParams)
+        fun fromBytes(bytes: ByteArray, curve: Curve): PrivateKey =
+            PrivateKey(bytes.toBigInteger(), curve)
     }
 
-    fun toPublicKey(): PublicKey = PublicKey(publicFromPrivate(key, curveParams), curveParams)
+    fun toPublicKey(): PublicKey = PublicKey(publicFromPrivate(key, curve), curve)
 }
 
-fun BigInteger.toPrivateKey(curveParams: X9ECParameters) = PrivateKey(this, curveParams)
+fun BigInteger.toPrivateKey(curve: Curve) = PrivateKey(this, curve)
 
 /**
  *
  */
-class PublicKey(val key: BigInteger, val curveParams: X9ECParameters) {
+class PublicKey(val key: BigInteger, val curve: Curve) {
     override fun toString() = key.toString()
 
-    fun point() = curveParams.curve.decodePoint(key.toByteArray())
-
-    fun compressed(): ByteArray {
+    fun point(): ECPoint {
         val dest = key.toBytesPadded(PUBLIC_KEY_SIZE + 1)
         dest[0] = 4
-        val p = curveParams.curve.decodePoint(dest)
-        return p.getEncoded(true)
+        return curve.c.decodePoint(dest)
     }
 
+    fun compressed() = point().getEncoded(true)
+
     companion object {
-        fun fromBytes(bytes: ByteArray, curveParams: X9ECParameters): PublicKey = PublicKey(bytes.toBigInteger(), curveParams)
+        fun fromBytes(bytes: ByteArray, curve: Curve): PublicKey = PublicKey(bytes.toBigInteger(), curve)
     }
 }
 

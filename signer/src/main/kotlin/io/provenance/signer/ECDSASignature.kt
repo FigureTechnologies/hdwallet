@@ -1,11 +1,11 @@
 package io.provenance.signer
 
 import io.provenance.ec.CURVE
-import org.bouncycastle.asn1.x9.X9ECParameters
+import io.provenance.ec.Curve
 import java.math.BigInteger
 
-data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curveParams: X9ECParameters = CURVE) {
-    private val halfCurveOrder = curveParams.n.shiftRight(1)
+data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve = CURVE) {
+    private val halfCurveOrder = curve.n.shiftRight(1)
 
     companion object {
 
@@ -13,7 +13,7 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curveParams:
          * decodeAsBTC returns an ECDSASignature where the 64 byte array is divided
          * into r || s with each being a 32 byte big endian integer.
          */
-        fun decodeAsBTC(bytes: ByteArray, curveParams: X9ECParameters = CURVE): ECDSASignature {
+        fun decodeAsBTC(bytes: ByteArray, curveParams: Curve = CURVE): ECDSASignature {
             val halfCurveOrder = curveParams.n.shiftRight(1)
 
             require(bytes.size == 64) { "malformed BTC encoded signature, expected 64 bytes" }
@@ -53,7 +53,7 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curveParams:
         // we set s = curve_order - s, if s is greater than curve.Order() / 2.
         var sigS = this.s
         if (sigS > halfCurveOrder) {
-            sigS = curveParams.n.subtract(sigS)
+            sigS = curve.n.subtract(sigS)
         }
 
         val sBytes = sigS.getUnsignedBytes()

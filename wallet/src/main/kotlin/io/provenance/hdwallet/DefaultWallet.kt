@@ -22,7 +22,7 @@ class DefaultAccount(hrp: String, key: ExtKey) : Account {
     override val address: String =
         key.keyPair.publicKey.compressed().sha256hash160().toBech32(hrp).address
 
-    private val keyMaker = hrp to key::childKey
+    private val keyMaker = hrp to { index: Int, hard: Boolean -> key.childKey(index, hard) }
     private val signateur = BCECSigner()
     private val signer = { bytes: ByteArray -> signateur.sign(key.keyPair.privateKey, bytes.sha256()) }
 
