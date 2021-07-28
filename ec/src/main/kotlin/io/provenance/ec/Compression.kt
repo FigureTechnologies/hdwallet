@@ -5,12 +5,11 @@ import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.crypto.params.ECDomainParameters
 import java.math.BigInteger
 
-val curveParams: X9ECParameters = CustomNamedCurves.getByName("secp256k1")
-val domainParams: ECDomainParameters = ECDomainParameters(curveParams.curve, curveParams.g, curveParams.n, curveParams.h)
+fun X9ECParameters.toDomainParams() = ECDomainParameters(curve, g, n, h)
 
 internal const val PUBLIC_KEY_SIZE = 64
 
-fun decompressPublicKey(compressedBytes: ByteArray): BigInteger {
+fun decompressPublicKey(compressedBytes: ByteArray, curveParams: X9ECParameters = secp256k1CurveParams): BigInteger {
     val point = curveParams.curve.decodePoint(compressedBytes)
     val encoded = point.getEncoded(true)
     return BigInteger(encoded.copyOfRange(1, encoded.size))

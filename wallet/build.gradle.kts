@@ -6,4 +6,5 @@ dependencies {
     implementation(project(":bip44"))
     implementation(project(":common"))
     implementation(project(":ec"))
+    implementation(project(":signer"))
 }
