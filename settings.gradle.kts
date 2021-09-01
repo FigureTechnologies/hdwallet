@@ -1,4 +1,4 @@
-rootProject.name = "khdwallet"
+rootProject.name = "hdwallet"
 
 include("common")
 include("base58")
@@ -8,4 +8,4 @@ include("bip39")
 include("bip44")
 include("ec")
 include("signer")
-include("wallet")
+include("hdwallet")

@@ -51,15 +51,15 @@ jobs:
         run: |
           ./gradlew clean build --refresh-dependencies -Pversion=$VERSION
 
-      - name: Publish to Maven Central
-        run: |
-          ./gradlew publish --info \
-              -Pversion=$VERSION \
-              -Psigning.keyId=B7D30ABE \
-              -Psigning.password="$GPG_PASSWORD" \
-              -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-        if: github.event_name == 'release'
+      # - name: Publish to Maven Central
+      #   run: |
+      #     ./gradlew publish --info \
+      #         -Pversion=$VERSION \
+      #         -Psigning.keyId=B7D30ABE \
+      #         -Psigning.password="$GPG_PASSWORD" \
+      #         -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg
+      #   env:
+      #     OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+      #     OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      #     GPG_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+      #   if: github.event_name == 'release'
