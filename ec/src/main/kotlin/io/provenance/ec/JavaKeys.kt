@@ -1,13 +1,13 @@
 package io.provenance.ec
 
+import io.provenance.ec.bc.toCurvePoint
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.spec.ECParameterSpec
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
 
-private fun ECParameterSpec.toCurve() = Curve("", curve, n, h, g, seed)
-private fun Curve.toECParameterSpec() = ECParameterSpec(c, g, n, h, seed)
+private fun ECParameterSpec.toCurve() = Curve(n, g.toCurvePoint(), curve)
 
 fun JavaPublicKey.toECPublicKey(): PublicKey {
     val bcec = requireNotNull(this as? BCECPublicKey) { "key type invalid" }

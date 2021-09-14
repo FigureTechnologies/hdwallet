@@ -142,11 +142,11 @@ data class ExtKey(
             ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, PrivateKey(k, curve).toECKeyPair())
         } else {
             val q = curve.g
-                .multiply(ib)
-                .add(curve.c.decodePoint(pub))
+                .mul(ib)
+                .add(curve.decodePoint(pub))
                 .normalize()
             require(!q.isInfinity) { "invalid derived key is zeros" }
-            val pt = curve.c.createPoint(q.xCoord.toBigInteger(), q.yCoord.toBigInteger()).getEncoded(false)
+            val pt = curve.createPoint(q.x, q.y).encoded(false)
             val pubk = PublicKey(pt.copyOfRange(1, pt.size).toBigInteger(), curve)
             val prvk = PrivateKey(BigInteger.ZERO, curve)
             ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, ECKeyPair(prvk, pubk))

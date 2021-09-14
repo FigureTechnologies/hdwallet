@@ -22,7 +22,7 @@ interface TestECDSASignature {
 }
 
 val mnemonic = MnemonicWords.of(
-    "transfer hip shaft equip make believe desert logic ginger wine album citizen emotion laptop path what april lab napkin bulk silent artefact injury tag"
+    "defense legal stem absorb hurdle physical prosper review process primary exist camera"
 )
 val seed = mnemonic.toSeed("".toCharArray())
 val payloadHash = "test".toByteArray().sha256()
@@ -30,41 +30,41 @@ val payloadHash = "test".toByteArray().sha256()
 val expected = mapOf(
     secp256k1Curve to ExpectedSigs(
         ExpectedSig(
-            "57469986241562286946042025192141317461649010201239636784713669727108899997705".toBigInteger(),
-            "369442288951583454686650909004329655345823929397184098658781431902709281662".toBigInteger(),
-            "7f0edc0878a3649b7dcb0f09d12315d47d9f4a291bcf1eae7e920c31a9f3080900d118d01ae3696e787396abcdd5f0750f079e154db2572d45aabb38196cf37e".base16Decode(),
+            "103983774820643500215082854519765665317236078679902989525656367220645751138099".toBigInteger(),
+            "82659495478440068823917482899087829579900564952477345264247370968127761886159".toBigInteger(),
+            "e5e4bb1b5d409837a48d89476585271072bd949c36c41d51b6079d9dfb8fa7334940622d962584da6a6465111492aa412da5552636eea1caf221f6fc827d1572".base16Decode(),
         ),
 
         ExpectedSig(
-            "88006751095464836250625038057176603769929873888335827755536246189656928323643".toBigInteger(),
-            "459111695588851989901226468387334385508409586134382378746116036623334786691".toBigInteger(),
-            "c2920e50a734ec873b5ad74b62c10c543984d0152ecf4358929d537906d6883b0103d9174055a7f7a34eedfc5a909deada9da5d0b8bdab1a9c81464a62764683".base16Decode(),
+            "95801138147837954606004188261328606299891675155763289432154373623867774496927".toBigInteger(),
+            "14031748757374300434682348731734333112132253375132969433918854158158678614077".toBigInteger(),
+            "d3cd85cc9bb04f2b1fff99bacc7ddab9c871e24a3c192ae1268f8914f776709f1f05b037f520e83589ec530a70e2768e44c62eda941d56c4f6f3225d7442603d".base16Decode(),
         ),
 
         ExpectedSig(
-            "25997571277705891019657786514392770885303289053033240120375063576688883654194".toBigInteger(),
-            "43974628893527353777472159866324079997614690156858778939681894624087682319456".toBigInteger(),
-            "397a1a98dcace839577a7aea3286d56347d992cb3ff1f69f8920b76e0b63de326138c207a9229f98db7dd07cc421771964e92e29e204339d67b4ef6de1b40460".base16Decode()
+            "17658101104089426292805451403999513160531797433477978227889304996774154117402".toBigInteger(),
+            "78418590613312569024886558300198676180512285136998342380024508185675425727015".toBigInteger(),
+            "270a218c3f5b676eb1b68673ed1d8f68186c8e952340abda6ff00c1d893ca11a52a0a68db0497c705e990f0972df96f6e49ff89b85b279494ddaa8573ba4ff1a".base16Decode()
         ),
     ),
 
     secp256r1Curve to ExpectedSigs(
         ExpectedSig(
-            "21753168909585361901698837299917205198687298947807233571855694015673834073431".toBigInteger(),
-            "38086756602760523597282750086592933175057347672132956935554687218119963437449".toBigInteger(),
-            "3017db7729ec71fc6d5fc0ec7fb8dcca6216c7ee1a93ddddb6ddbc554a4aed575434571e81c6e154f6af7465d34746539fb36ccc2648a74bfb8d60086869e989".base16Decode(),
+            "98107675753390773036640878690826125641577492299606982091785407557416771397742".toBigInteger(),
+            "45713286138739669004318608142584199971787212195386045070452505313279266326904".toBigInteger(),
+            "d8e6fa07575baba76cfbd6ab6b71501951e48393640d97726b991e9f9ec0286e6510cd9523b473e683be4a95d78d3d26ef738967ccda57bc509ba61058450978".base16Decode(),
         ),
 
         ExpectedSig(
-            "112933647512762912047871241551058218772497767139512968382836247446722995039949".toBigInteger(),
-            "24363831613179829191973208979191080568078032315851154663666738142116851715719".toBigInteger(),
-            "f9ae2de7bd32a4d10d11c2ce7edb54769ed09debce9037c42ed568fc26442ecd35dd70a4bd3bba50d73f2783439ed21f2f7a3c0f7ca25a89dada77f4093b8e87".base16Decode(),
+            "107341802698941283953223552902597426104572978003292539605476300632902874056470".toBigInteger(),
+            "111272204444066855090766866392560775989219971564888385023157275326163560168616".toBigInteger(),
+            "ed514eabf7c76a7fc4f84bdba5c11062c6cc0696abbcf4df1564da3000aa471609fe2a04c15421444e16ef9777b4fe929eb65e73631047c5616a971166224499".base16Decode(),
         ),
 
         ExpectedSig(
-            "28683642256261352430572769683114565276283399679975521364881223354944273899039".toBigInteger(),
-            "14621719776976667543605328675580890218993942448804809431108083757445229100621".toBigInteger(),
-            "3f6a5dbecf77d692f05db2936d71f682ada1ea0ca429cba15f254ae90be9de1f205399a14dcc3cc5cc9cb548c726fd3625171904daeebc76cd6fb5e6b8bcbe4d".base16Decode(),
+            "20727226463115513394457175384497173873773562814282725735552832555772132551858".toBigInteger(),
+            "66274330211786722681738727591084814804047669008330573656207483100894184867443".toBigInteger(),
+            "2dd331c6d637f79ae2aec915c027f39c38572da26f8b1cfd427aa8376fa96cb26d7a0ef3751fb2f157365d82f72edcf6d2409b4e055b2d67274859c16aca3ace".base16Decode(),
         ),
     ),
 )
@@ -83,7 +83,10 @@ class TestItAll {
         ).map { test ->
             val signer = test.signer()
 
-            listOf(secp256k1Curve, secp256r1Curve).map { curve ->
+            listOf(
+                "secp256k1" to secp256k1Curve,
+                "secp256r1" to secp256r1Curve,
+            ).map { (name, curve) ->
                 val keys = Keys(seed.toRootKey(curve = curve))
                 val ekp = expected[curve]!!
 
@@ -91,20 +94,20 @@ class TestItAll {
                 val testnetSig = signer.sign(keys.testnet.keyPair.privateKey, payloadHash)
                 val mainnetSig = signer.sign(keys.mainnet.keyPair.privateKey, payloadHash)
 
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} root r", ekp.expectedRoot.r, rootSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} root s", ekp.expectedRoot.s, rootSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} root btc", ekp.expectedRoot.btc.base16Encode(), rootSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} root verify", true, signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig))
+                Assert.assertEquals("${test.javaClass.simpleName} $name root r", ekp.expectedRoot.r, rootSig.r)
+                Assert.assertEquals("${test.javaClass.simpleName} $name root s", ekp.expectedRoot.s, rootSig.s)
+                Assert.assertEquals("${test.javaClass.simpleName} $name root btc", ekp.expectedRoot.btc.base16Encode(), rootSig.encodeAsBTC().base16Encode())
+                Assert.assertEquals("${test.javaClass.simpleName} $name root verify", true, signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig))
 
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} test r", ekp.expectedTestnet.r, testnetSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} test s", ekp.expectedTestnet.s, testnetSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} test btc", ekp.expectedTestnet.btc.base16Encode(), testnetSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} test verify", true, signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig))
+                Assert.assertEquals("${test.javaClass.simpleName} $name test r", ekp.expectedTestnet.r, testnetSig.r)
+                Assert.assertEquals("${test.javaClass.simpleName} $name test s", ekp.expectedTestnet.s, testnetSig.s)
+                Assert.assertEquals("${test.javaClass.simpleName} $name test btc", ekp.expectedTestnet.btc.base16Encode(), testnetSig.encodeAsBTC().base16Encode())
+                Assert.assertEquals("${test.javaClass.simpleName} $name test verify", true, signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig))
 
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} main r", ekp.expectedMainnet.r, mainnetSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} main s", ekp.expectedMainnet.s, mainnetSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} main btc", ekp.expectedMainnet.btc.base16Encode(), mainnetSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} ${curve.name} main verify", true, signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig))
+                Assert.assertEquals("${test.javaClass.simpleName} $name main r", ekp.expectedMainnet.r, mainnetSig.r)
+                Assert.assertEquals("${test.javaClass.simpleName} $name main s", ekp.expectedMainnet.s, mainnetSig.s)
+                Assert.assertEquals("${test.javaClass.simpleName} $name main btc", ekp.expectedMainnet.btc.base16Encode(), mainnetSig.encodeAsBTC().base16Encode())
+                Assert.assertEquals("${test.javaClass.simpleName} $name main verify", true, signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig))
             }
         }
 

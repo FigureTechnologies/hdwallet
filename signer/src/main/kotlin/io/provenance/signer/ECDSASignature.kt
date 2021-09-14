@@ -8,7 +8,6 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
     private val halfCurveOrder = curve.n.shiftRight(1)
 
     companion object {
-
         /**
          * decodeAsBTC returns an ECDSASignature where the 64 byte array is divided
          * into r || s with each being a 32 byte big endian integer.
@@ -28,8 +27,6 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
 
             return ecdsa
         }
-
-
     }
 
     /**
@@ -66,7 +63,6 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
         // 0 pad the byte arrays from the left if they aren't big enough.
         System.arraycopy(rBytes, 0, signature, 32 - rBytes.size, rBytes.size)
         System.arraycopy(sBytes, 0, signature, 64 - sBytes.size, sBytes.size)
-
         return signature
     }
 }

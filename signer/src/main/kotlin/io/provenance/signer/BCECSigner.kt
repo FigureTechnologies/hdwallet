@@ -2,7 +2,6 @@ package io.provenance.signer
 
 import io.provenance.ec.PrivateKey
 import io.provenance.ec.PublicKey
-import io.provenance.ec.toDomainParams
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters
 import org.bouncycastle.crypto.params.ECPublicKeyParameters
@@ -18,7 +17,7 @@ open class BCECSigner : SignAndVerify {
     }
 
     override fun sign(privateKey: PrivateKey, payload: ByteArray): ECDSASignature {
-        val params = ECPrivateKeyParameters(privateKey.key, privateKey.curve.toDomainParams())
+        val params = ECPrivateKeyParameters(privateKey.key, privateKey.curve.ecDomainParameters)
         val (r, s) = signer {
             init(true, params)
             generateSignature(payload)
@@ -27,7 +26,7 @@ open class BCECSigner : SignAndVerify {
     }
 
     override fun verify(publicKey: PublicKey, data: ByteArray, signature: ECDSASignature): Boolean {
-        val params = ECPublicKeyParameters(publicKey.point(), publicKey.curve.toDomainParams())
+        val params = ECPublicKeyParameters(publicKey.point().ecPoint, publicKey.curve.ecDomainParameters)
         return signer {
             init(false, params)
             verifySignature(data, signature.r, signature.s)
