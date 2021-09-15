@@ -69,7 +69,7 @@ subprojects {
         }
     }
 
-    val artifactName = if (name.startsWith("hdwallet-")) name else "hdwallet-$name"
+    val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
 
     publishing {
         publications {

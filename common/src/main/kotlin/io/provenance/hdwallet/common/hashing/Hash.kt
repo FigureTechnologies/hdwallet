@@ -1,4 +1,4 @@
-package io.provenance.crypto.common.hashing
+package io.provenance.hdwallet.common.hashing
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with

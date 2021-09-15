@@ -1,6 +1,6 @@
-package io.provenance.hdwallet.common.base58
+package io.provenance.hdwallet.encoding.base58
 
-import io.provenance.hdwallet.hdwallet.base16.base16Decode
+import io.provenance.hdwallet.encoding.base16.base16Decode
 import org.junit.Assert
 import org.junit.Test
 

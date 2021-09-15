@@ -1,6 +1,6 @@
-package io.provenance.crypto.common
+package io.provenance.hdwallet.common
 
-import io.provenance.chararray.split
+import io.provenance.hdwallet.common.chararray.split
 import org.junit.Assert
 import org.junit.Test
 

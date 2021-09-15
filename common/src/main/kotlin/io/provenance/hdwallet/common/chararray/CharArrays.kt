@@ -1,4 +1,4 @@
-package io.provenance.crypto.common.chararray
+package io.provenance.hdwallet.common.chararray
 
 fun CharArray.split(delimiter: Char): List<CharArray> {
     var currentOffset = 0

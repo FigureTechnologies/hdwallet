@@ -1,6 +1,9 @@
-package io.provenance.hdwallet.common
+package io.provenance.hdwallet.ec
 
-import io.provenance.ec.bc.toCurvePoint
+import io.provenance.hdwallet.common.PrivateKey
+import io.provenance.hdwallet.common.PublicKey
+import io.provenance.hdwallet.common.toBigInteger
+import io.provenance.hdwallet.ec.bc.toCurvePoint
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.spec.ECParameterSpec

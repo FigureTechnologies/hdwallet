@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bech32
+package io.provenance.hdwallet.bech32
 
 /**
  * BIP173 compliant processing functions for handling Bech32 encoding for addresses

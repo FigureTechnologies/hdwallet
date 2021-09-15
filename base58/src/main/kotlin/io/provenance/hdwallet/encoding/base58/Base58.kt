@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.base58
+package io.provenance.hdwallet.encoding.base58
 
 import io.provenance.hdwallet.encoding.shadow.org.bitcoinj.core.Base58
 

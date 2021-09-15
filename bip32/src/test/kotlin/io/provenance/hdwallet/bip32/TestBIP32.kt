@@ -1,9 +1,9 @@
-package io.provenance.hdwallet.common.bip32
+package io.provenance.hdwallet.bip32
 
-import io.provenance.base58.base58DecodeChecked
-import io.provenance.base58.base58EncodeChecked
-import io.provenance.bip39.DeterministicSeed
-import io.provenance.bip44.parseBIP44Path
+import io.provenance.hdwallet.bip39.DeterministicSeed
+import io.provenance.hdwallet.bip44.parseBIP44Path
+import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
+import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
 import org.junit.Assert
 import org.junit.Test
 

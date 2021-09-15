@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip39
+package io.provenance.hdwallet.bip39
 
 import javax.crypto.SecretKey
 import javax.security.auth.Destroyable

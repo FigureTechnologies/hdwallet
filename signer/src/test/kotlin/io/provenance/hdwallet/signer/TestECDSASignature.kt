@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.signer
+package io.provenance.hdwallet.signer
 
 import io.provenance.base16.base16Decode
 import io.provenance.base16.base16Encode

@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.base16
+package io.provenance.hdwallet.encoding.base16
 
 object Base16 {
     private val b16Alphabet = "0123456789abcdef".toByteArray()

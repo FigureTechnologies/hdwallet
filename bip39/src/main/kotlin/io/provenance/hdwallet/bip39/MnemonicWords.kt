@@ -1,7 +1,7 @@
-package io.provenance.hdwallet.common.bip39
+package io.provenance.hdwallet.bip39
 
-import io.provenance.chararray.CharArrayBuffer
-import io.provenance.chararray.split
+import io.provenance.hdwallet.common.chararray.CharArrayBuffer
+import io.provenance.hdwallet.common.chararray.split
 import java.security.SecureRandom
 import java.text.Normalizer
 import java.text.Normalizer.Form.NFKD

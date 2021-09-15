@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip39
+package io.provenance.hdwallet.bip39
 /**
  * WORDLIST_ENGLISH as mandated by BIP-0039 is available here:
  *      https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt

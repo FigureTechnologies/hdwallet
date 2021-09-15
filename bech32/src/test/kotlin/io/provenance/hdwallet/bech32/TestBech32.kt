@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bech32
+package io.provenance.hdwallet.bech32
 
 import org.junit.Assert
 import org.junit.Test

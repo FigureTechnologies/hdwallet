@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip39.json
+package io.provenance.hdwallet.bip39.json
 
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.ObjectMapper

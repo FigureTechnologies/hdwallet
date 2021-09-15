@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip44
+package io.provenance.hdwallet.bip44
 //
 //import io.provenance.hdwallet.Account
 //

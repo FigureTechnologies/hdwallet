@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common
+package io.provenance.hdwallet.ec
 
 import java.math.BigInteger
 

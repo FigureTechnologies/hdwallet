@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip44
+package io.provenance.hdwallet.bip44
 
 import org.junit.Assert
 import org.junit.Test

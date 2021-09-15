@@ -1,4 +1,4 @@
-package io.provenance.crypto.common.hdwallet.shadow.org.bitcoinj.core;
+package io.provenance.hdwallet.encoding.shadow.org.bitcoinj.core;
 
 /*
  * Copyright 2011 Google Inc.
@@ -17,7 +17,7 @@ package io.provenance.crypto.common.hdwallet.shadow.org.bitcoinj.core;
  * limitations under the License.
  */
 
-import io.provenance.hashing.HashKt;
+import io.provenance.hdwallet.common.hashing.HashKt;
 
 import java.math.BigInteger;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip32
+package io.provenance.hdwallet.bip32
 
 enum class AccountType {
     ROOT,

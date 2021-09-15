@@ -6,7 +6,7 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package io.provenance.hdwallet.common.bech32
+package io.provenance.hdwallet.bech32
 
 import org.apache.commons.codec.binary.Base16
 

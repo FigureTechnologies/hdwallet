@@ -1,9 +1,9 @@
-package io.provenance.hdwallet.common.bip39
+package io.provenance.hdwallet.bip39
 
 import com.fasterxml.jackson.module.kotlin.convertValue
-import io.provenance.bip39.json.Json.asTree
-import io.provenance.bip39.json.Json.om
-import io.provenance.chararray.split
+import io.provenance.hdwallet.bip39.json.Json.asTree
+import io.provenance.hdwallet.bip39.json.Json.om
+import io.provenance.hdwallet.common.chararray.split
 import org.junit.Assert
 import org.junit.Test
 

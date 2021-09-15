@@ -1,8 +1,7 @@
-package io.provenance.hdwallet.common
+package io.provenance.hdwallet.ec
 
-import io.provenance.ec.bc.toCurve
-import io.provenance.ec.bc.toCurvePoint
-import io.provenance.hdwallet.common.Curve.Companion
+import io.provenance.hdwallet.ec.bc.toCurve
+import io.provenance.hdwallet.ec.bc.toCurvePoint
 import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.crypto.params.ECDomainParameters
 import org.bouncycastle.math.ec.ECCurve

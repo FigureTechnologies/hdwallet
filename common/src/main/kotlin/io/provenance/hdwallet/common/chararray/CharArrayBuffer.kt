@@ -1,4 +1,4 @@
-package io.provenance.crypto.common.chararray
+package io.provenance.hdwallet.common.chararray
 
 open class CharArrayBuffer : Appendable, MutableCollection<CharArray> {
     private val buffer = mutableListOf<CharArray>()

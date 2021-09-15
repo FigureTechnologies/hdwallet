@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.signer
+package io.provenance.hdwallet.signer
 
 import io.provenance.ec.PrivateKey
 import io.provenance.ec.PublicKey

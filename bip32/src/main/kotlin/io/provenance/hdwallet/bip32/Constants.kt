@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip32
+package io.provenance.hdwallet.bip32
 
 // BIP32 defines several 4 byte encoding values to designate the purpose of the encoded extended key
 // 4 byte: version bytes

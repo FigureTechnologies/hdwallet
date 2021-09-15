@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.signer
+package io.provenance.hdwallet.signer
 
 import io.provenance.ec.CURVE
 import io.provenance.ec.Curve

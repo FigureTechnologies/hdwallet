@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.bip39
+package io.provenance.hdwallet.bip39
 
 import org.apache.commons.codec.binary.Hex
 

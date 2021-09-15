@@ -1,4 +1,4 @@
-package io.provenance.hdwallet.common.signer
+package io.provenance.hdwallet.signer
 
 //
 //fun FiniteField.toECField(): ECField = ECFieldFp(characteristic)
