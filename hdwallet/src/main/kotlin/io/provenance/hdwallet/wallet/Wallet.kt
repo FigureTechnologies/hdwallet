@@ -1,12 +1,12 @@
-package io.provenance.hdwallet.common
+package io.provenance.hdwallet.wallet
 
-import io.provenance.base58.base58DecodeChecked
-import io.provenance.bip32.ExtKey
-import io.provenance.bip32.toRootKey
-import io.provenance.bip39.DeterministicSeed
-import io.provenance.bip39.MnemonicWords
-import io.provenance.bip44.PathElement
-import io.provenance.bip44.PathElements
+import io.provenance.hdwallet.bip32.ExtKey
+import io.provenance.hdwallet.bip32.toRootKey
+import io.provenance.hdwallet.bip39.DeterministicSeed
+import io.provenance.hdwallet.bip39.MnemonicWords
+import io.provenance.hdwallet.bip44.PathElement
+import io.provenance.hdwallet.bip44.PathElements
+import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
 import java.security.KeyException
 
 interface Wallet {

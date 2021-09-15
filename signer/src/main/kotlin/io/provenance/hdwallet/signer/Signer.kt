@@ -1,7 +1,7 @@
 package io.provenance.hdwallet.signer
 
-import io.provenance.ec.PrivateKey
-import io.provenance.ec.PublicKey
+import io.provenance.hdwallet.ec.PrivateKey
+import io.provenance.hdwallet.ec.PublicKey
 
 /**
  *

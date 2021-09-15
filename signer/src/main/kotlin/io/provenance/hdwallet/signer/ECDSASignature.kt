@@ -1,7 +1,7 @@
 package io.provenance.hdwallet.signer
 
-import io.provenance.ec.CURVE
-import io.provenance.ec.Curve
+import io.provenance.hdwallet.ec.CURVE
+import io.provenance.hdwallet.ec.Curve
 import java.math.BigInteger
 
 data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve = CURVE) {

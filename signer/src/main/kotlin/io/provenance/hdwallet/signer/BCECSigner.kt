@@ -1,7 +1,7 @@
 package io.provenance.hdwallet.signer
 
-import io.provenance.ec.PrivateKey
-import io.provenance.ec.PublicKey
+import io.provenance.hdwallet.ec.PrivateKey
+import io.provenance.hdwallet.ec.PublicKey
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters
 import org.bouncycastle.crypto.params.ECPublicKeyParameters

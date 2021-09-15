@@ -1,12 +1,12 @@
-package io.provenance.hdwallet.common
+package io.provenance.hdwallet.wallet
 
-import io.provenance.bech32.toBech32
-import io.provenance.bip32.AccountType.ROOT
-import io.provenance.bip32.ExtKey
-import io.provenance.bip44.PathElement
-import io.provenance.hashing.sha256
-import io.provenance.hashing.sha256hash160
-import io.provenance.signer.BCECSigner
+import io.provenance.hdwallet.bech32.toBech32
+import io.provenance.hdwallet.bip32.AccountType.ROOT
+import io.provenance.hdwallet.bip32.ExtKey
+import io.provenance.hdwallet.bip44.PathElement
+import io.provenance.hdwallet.common.hashing.sha256
+import io.provenance.hdwallet.common.hashing.sha256hash160
+import io.provenance.hdwallet.signer.BCECSigner
 
 class DefaultWallet(private val hrp: String, private val key: ExtKey) : Wallet {
     init {
