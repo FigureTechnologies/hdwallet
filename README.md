@@ -1,6 +1,6 @@
 # HDWallet
 
-HDWallet is a collection of helper utilities to ease use of highly deterministic wallets and key management in kotlin and java.
+HDWallet is a collection of helper utilities to ease use of hierarchical deterministic wallets and key management in kotlin and java.
 
 # Getting Started
 
