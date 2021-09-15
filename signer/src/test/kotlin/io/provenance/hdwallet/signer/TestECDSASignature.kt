@@ -1,13 +1,13 @@
 package io.provenance.hdwallet.signer
 
-import io.provenance.base16.base16Decode
-import io.provenance.base16.base16Encode
-import io.provenance.bip32.ExtKey
-import io.provenance.bip32.toRootKey
-import io.provenance.bip39.MnemonicWords
-import io.provenance.ec.secp256k1Curve
-import io.provenance.ec.secp256r1Curve
-import io.provenance.hashing.sha256
+import io.provenance.hdwallet.bip32.ExtKey
+import io.provenance.hdwallet.bip32.toRootKey
+import io.provenance.hdwallet.bip39.MnemonicWords
+import io.provenance.hdwallet.common.hashing.sha256
+import io.provenance.hdwallet.ec.secp256k1Curve
+import io.provenance.hdwallet.ec.secp256r1Curve
+import io.provenance.hdwallet.encoding.base16.base16Decode
+import io.provenance.hdwallet.encoding.base16.base16Encode
 import org.junit.Assert
 import org.junit.Test
 import java.math.BigInteger
