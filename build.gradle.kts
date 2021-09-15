@@ -8,6 +8,7 @@ buildscript {
 }
 
 plugins {
+	`maven-publish`
     `java-library`
     idea
     jacoco
@@ -23,7 +24,7 @@ subprojects {
         plugin("jacoco")
     }
 
-    group = "io.provenance.wallet"
+    group = "io.provenance.hdwallet"
     version = "1.0-SNAPSHOT"
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
@@ -65,6 +66,20 @@ subprojects {
             xml.isEnabled = false
             csv.isEnabled = false
             html.isEnabled = true
+        }
+    }
+
+    val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
+
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = project.group.toString()
+                artifactId = artifactName
+                version = project.version.toString()
+
+                from(components["java"])
+            }
         }
     }
 }
