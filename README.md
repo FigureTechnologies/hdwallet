@@ -21,7 +21,7 @@ Current published version:
 ## Gradle
 
 ```
-implementation("io.provenance.hdwallet", "hdwallet", "0.0.0")
+implementation("io.provenance.hdwallet", "hdwallet", "$version")
 ```
 
 # Quickstart
