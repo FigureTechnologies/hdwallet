@@ -29,7 +29,7 @@ jobs:
           server-id: github
 
       - name: GPG Setup
-        if: github.event_name == 'release'
+        # if: github.event_name == 'release'
         env:
           GPG_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
         run: |
@@ -43,7 +43,7 @@ jobs:
           ./gradlew clean build :jacocoTestReport --refresh-dependencies -Pversion=$VERSION
 
       - name: Publish to Maven Central
-        if: github.event_name == 'release'
+        # if: github.event_name == 'release'
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
