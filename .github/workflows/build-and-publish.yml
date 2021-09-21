@@ -36,7 +36,7 @@ jobs:
           export GPG_TTY=$(tty)
           echo -n "$GPG_KEY" | base64 --decode | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
-          echo -n "$GPG_KEY" | base64 --decode > $GITHUB_WORKSPACE/release.gpg      - name: Clean and Build
+          echo -n "$GPG_KEY" | base64 --decode > $GITHUB_WORKSPACE/release.gpg
 
       - name: Build with Gradle
         run: |
