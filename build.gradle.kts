@@ -1,3 +1,5 @@
+import Repos.sonatypeOss
+
 buildscript {
     repositories {
         mavenCentral()
@@ -26,7 +28,7 @@ subprojects {
     }
 
     group = "io.provenance.hdwallet"
-    version = "1.0-SNAPSHOT"
+    version = Versions.projectSnapshot
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
 
@@ -78,8 +80,13 @@ subprojects {
     }
 
     val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
+    val projectVersion = version.toString()
 
     publishing {
+        repositories {
+            sonatypeOss(projectVersion)
+        }
+
         publications {
             create<MavenPublication>("maven") {
                 groupId = project.group.toString()
