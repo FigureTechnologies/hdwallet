@@ -109,9 +109,10 @@ subprojects {
 
                     developers {
                         developer {
-                            id.set("scirner22")
-                            name.set("Stephen Cirner")
-                            email.set("scirner@figure.com")
+                            name.set("mtps")
+                            email.set("mtps@users.noreply.github.com")
+                            organization.set("Provenance")
+                            organizationUrl.set("https://provenance.io")
                         }
                     }
 
