@@ -1,6 +1,6 @@
 dependencies {
     implementation(project(":ec"))
 
-    listOf(project(":base58"), project(":bip32"), project(":bip39"), project(":common"), project(":hdwallet"))
-        .map(::testImplementation)
+    listOf(":base58", ":bip32", ":bip39", ":common", ":hdwallet")
+        .map { testImplementation(project(it)) }
 }
