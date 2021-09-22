@@ -39,7 +39,5 @@ interface Account {
 }
 
 interface Discoverer {
-    fun discover(account: Account, query: (path: String) -> List<Account>): List<Account> {
-        TODO()
-    }
+    fun discover(account: Account, query: (path: String) -> List<Account>): List<Account>
 }
