@@ -17,8 +17,8 @@ object Repos {
             name = "Sonatype"
             url = URI.create(murl)
             credentials {
-                username = requireNotNull(System.getenv("OSSRH_USERNAME")) { "username not set" }
-                password = requireNotNull(System.getenv("OSSRH_PASSWORD")) { "password not set" }
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
