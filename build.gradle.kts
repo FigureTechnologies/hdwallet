@@ -80,7 +80,7 @@ subprojects {
     }
 
     val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
-    val projectVersion = version.toString()
+    val projectVersion = if (rootProject.hasProperty("version")) rootProject.property("version").toString() else version.toString()
 
     publishing {
         repositories {
