@@ -22,6 +22,7 @@ subprojects {
         plugin("idea")
         plugin("java-library")
         plugin("jacoco")
+        plugin("signing")
     }
 
     group = "io.provenance.hdwallet"
@@ -35,6 +36,11 @@ subprojects {
         }
     }
 
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
     configure<JavaPluginConvention> {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -45,27 +51,29 @@ subprojects {
     }
 
     dependencies {
-        implementation("org.bouncycastle", "bcprov-jdk15on", Versions.bouncyCastle)
+        listOf(
+            Deps.bouncycastle,
+            Deps.kotlinStdLibJdk8, Deps.kotlinStdLib, Deps.kotlinReflect
+        ).map(::implementation)
 
-        implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", Versions.kotlin)
-        implementation("org.jetbrains.kotlin", "kotlin-stdlib", Versions.kotlin)
-        implementation("org.jetbrains.kotlin", "kotlin-reflect", Versions.kotlin)
-
-        testImplementation("junit", "junit", "4.13.1")
+        listOf(
+            Deps.junit
+        ).map(::testImplementation)
     }
 
-    tasks.test {
-        finalizedBy(tasks.jacocoTestReport)
-    }
+    tasks {
+        test {
+            finalizedBy(jacocoTestReport)
+        }
 
-    tasks.jacocoTestReport {
-        dependsOn(tasks.test)
+        jacocoTestReport {
+            dependsOn(test)
 
-        reports {
-
-            xml.isEnabled = false
-            csv.isEnabled = false
-            html.isEnabled = true
+            reports {
+                xml.isEnabled = false
+                csv.isEnabled = false
+                html.isEnabled = true
+            }
         }
     }
 
@@ -79,6 +87,33 @@ subprojects {
                 version = project.version.toString()
 
                 from(components["java"])
+
+                pom {
+                    name.set("Provenance HDWallet Implementation")
+                    description.set("A collection of libraries to facilitate HDWallet usage")
+                    url.set("https://provenance.io")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("scirner22")
+                            name.set("Stephen Cirner")
+                            email.set("scirner@figure.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("git@github.com:provenance-io/hdwallet.git")
+                        developerConnection.set("git@github.com/provenance-io/hdwallet.git")
+                        url.set("https://github.com/provenance-io/hdwallet")
+                    }
+                }
             }
         }
     }
