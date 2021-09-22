@@ -2,7 +2,7 @@ name: On-Demand Publish
 
 on:
   workflow_dispatch:
-  
+
 jobs:
   java_build:
     name: Build and Publish Jar
@@ -49,7 +49,7 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           GPG_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
-          ./gradlew publish --info \
+          ./gradlew publish --info --stacktrace \
               -Pversion=$VERSION \
               -Psigning.keyId=B7D30ABE \
               -Psigning.password="$GPG_PASSWORD" \
