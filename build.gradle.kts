@@ -109,6 +109,7 @@ subprojects {
 
                     developers {
                         developer {
+                            id.set("scirner22")
                             name.set("mtps")
                             email.set("mtps@users.noreply.github.com")
                             organization.set("Provenance")
