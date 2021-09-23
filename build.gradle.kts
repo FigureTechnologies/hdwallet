@@ -28,7 +28,12 @@ subprojects {
     }
 
     group = "io.provenance.hdwallet"
-    version = Versions.projectSnapshot
+
+    val projectVersion = project.properties["version"]
+        ?.toString()
+        .let { if (it == null || it == "unspecified") "1.0-SNAPSHOT" else it }
+
+    version = projectVersion
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
 
@@ -80,7 +85,6 @@ subprojects {
     }
 
     val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
-    val projectVersion = if (rootProject.hasProperty("version")) rootProject.property("version").toString() else version.toString()
 
     publishing {
         repositories {
@@ -122,5 +126,9 @@ subprojects {
                 }
             }
         }
+    }
+
+    tasks.create("version") {
+        println(projectVersion)
     }
 }
