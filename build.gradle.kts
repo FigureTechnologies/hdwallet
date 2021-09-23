@@ -127,8 +127,4 @@ subprojects {
             }
         }
     }
-
-    tasks.create("version") {
-        println(projectVersion)
-    }
 }

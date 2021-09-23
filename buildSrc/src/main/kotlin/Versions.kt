@@ -1,5 +1,5 @@
 object Versions {
-    val projectSnapshot = "1.0-SNAPSHOT"
+    val snapshot = "SNAPSHOT"
 
     const val commonsCodec = "1.15"
     const val bouncyCastle = "1.63"
