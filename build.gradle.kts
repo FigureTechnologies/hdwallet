@@ -127,4 +127,10 @@ subprojects {
             }
         }
     }
+//
+//    tasks.register("version") {
+//        println(version)
+//        println(SemVer.parse(version.toString()))
+//        println(SemVer.parse(version.toString()).isPreRelease)
+//    }
 }
