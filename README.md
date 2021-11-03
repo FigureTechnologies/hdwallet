@@ -59,7 +59,7 @@ val rootKey = seed.toRootKey(/* curve = secp256k1 */) // optional curve paramete
 
 // Derive the child key based on path.
 val testnetPath = "m/44'/1'/0'/0/0"
-val childKey = seed.childKey(testnetPath)
+val childKey = rootKey.childKey(testnetPath)
 
 // Create a new BouncyCastle signer
 val signer = BCECSigner()
