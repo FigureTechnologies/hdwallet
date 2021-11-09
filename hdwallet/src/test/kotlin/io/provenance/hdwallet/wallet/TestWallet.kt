@@ -5,7 +5,6 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.common.hashing.sha256
 import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -13,96 +12,152 @@ import org.junit.Assert
 import org.junit.Test
 
 class TestWallet {
-    private data class Tv(val path: String, val address: String, val pubKey: String, val prvKey: String, val signature: String)
+    private data class WalletData(val path: String, val address: String, val publicKey: String, val privateKey: String, val signature: String)
+    private data class Tv(val seed: DeterministicSeed, val data: List<WalletData>)
 
-    private fun runSynchronousTestVectors(seed: DeterministicSeed, vectors: List<Tv>) {
+    private fun runBIP32SyncTestVectors(seed: DeterministicSeed, vectors: List<WalletData>) {
         vectors.map { runBip32Test(seed, it) }
     }
 
-    private fun runSynchronousTestVectorsSeed(seed: DeterministicSeed, vectors: List<Tv>) {
+    private fun runFromSeedSyncTestVectors(seed: DeterministicSeed, vectors: List<WalletData>) {
         vectors.map { runFromSeedTest(seed, it) }
     }
 
-    private fun runBip32Test(seed: DeterministicSeed, vector: Tv) {
+    private fun runBip32Test(seed: DeterministicSeed, walletData: WalletData) {
         val encodedKey = seed.toRootKey().serialize().base58EncodeChecked()
-        val wallet: Wallet = Wallet.fromBip32("test", encodedKey)
+        val wallet: Wallet = Wallet.fromBip32("cosmos", encodedKey)
 
-        val childKey = wallet[vector.path]
+        val childKey = wallet[walletData.path]
 
         val sig = childKey.sign( "test".toByteArray().sha256())
-        Assert.assertEquals(childKey.address, vector.address)
+        Assert.assertEquals(childKey.address, walletData.address)
     }
 
-    private fun runFromSeedTest(seed: DeterministicSeed, vector: Tv) {
-        val wallet = Wallet.fromSeed("test", seed)
-        val childKey = wallet[vector.path]
+    private fun runFromSeedTest(seed: DeterministicSeed, walletData: WalletData) {
+        val wallet = Wallet.fromSeed("cosmos", seed)
+        val childKey = wallet[walletData.path]
         val sig = childKey.sign("test".toByteArray().sha256())
 
-        Assert.assertEquals(childKey.address, vector.address)
+        Assert.assertEquals(childKey.address, walletData.address)
     }
 
-    private fun runParallelTestVectors(seed: DeterministicSeed, vectors: List<Tv>) {
+    private fun runBIP32AsyncTestVectors(vectors: List<Tv>) {
         runBlocking {
             val tasks = vectors.parallelStream().map {
-                async { runBip32Test(seed, it) }
-            }.toList()
+                val seed = it.seed
+                val tasks = it.data.map {
+                    async { runBip32Test(seed, it) }
+                }.toList()
+                tasks
+            }.toList().flatten()
+
             // await for all async tests to finish
-            tasks.awaitAll();
+            tasks.awaitAll()
         }
     }
 
-    private fun runParallelTestVectorsSeed(seed: DeterministicSeed, vectors: List<Tv>) {
+    private fun runFromSeedAsyncTestVectors(vectors: List<Tv>) {
         runBlocking {
             val tasks = vectors.parallelStream().map {
-                async { runFromSeedTest(seed, it) }
-            }.toList()
+                val seed = it.seed
+                val tasks = it.data.map {
+                    async { runFromSeedTest(seed, it) }
+                }.toList()
+                tasks
+            }.toList().flatten()
+
             // await for all async tests to finish
-            tasks.awaitAll();
+            tasks.awaitAll()
         }
     }
 
     @Test
-    fun testWalletSyncFromSeed() = runSynchronousTestVectorsSeed(
-        MnemonicWords.of("this is a test phrase and is completely made up").toSeed("trezor".toCharArray()),
+    fun testWalletSyncFromSeed() {
+        val vectors = getVectors()
+        vectors.map {
+            runFromSeedSyncTestVectors(it.seed, it.data)
+        }
+    }
+
+    @Test
+    fun testWalletAsyncFromSeed() = runFromSeedAsyncTestVectors(
         getVectors()
     )
 
     @Test
-    fun testWalletAsyncFromSeed() = runParallelTestVectorsSeed(
-        MnemonicWords.of("this is a test phrase and is completely made up").toSeed("trezor".toCharArray()),
-        getVectors()
-    )
+    fun testWalletSyncFromBip32() {
+        val vectors = getVectors()
+        vectors.map {
+            runBIP32SyncTestVectors(it.seed, it.data)
+        }
+    }
 
     @Test
-    fun testWalletSyncFromBip32() = runSynchronousTestVectors(
-        MnemonicWords.of("this is a test phrase and is completely made up").toSeed("trezor".toCharArray()),
-        getVectors()
-    )
-
-    @Test
-    fun testWalletAsyncFromBip32() = runParallelTestVectors(
-        MnemonicWords.of("this is a test phrase and is completely made up").toSeed("trezor".toCharArray()),
+    fun testWalletAsyncFromBip32() = runBIP32AsyncTestVectors(
         getVectors()
     )
 
     private fun getVectors(): List<Tv> {
+        // Test data source of truth from here: https://iancoleman.io/bip39/ pass phrase is 'trezor', coin is 'ATOM', and derivation path is BIP44
         return listOf(
-            Tv("m", "test1lrk2fun30k5zuu8cv8zfwym5utnsflswzw5w23", "", "", ""),
-            Tv("m/0'", "test1nfn9t66keycrkffyfgwsrh707ywp6xk2j8fz2u", "", "", ""),
-            Tv("m/0'", "test1nfn9t66keycrkffyfgwsrh707ywp6xk2j8fz2u", "", "", ""),
-            Tv("m/555'/1'/0'/0/0", "test12pmlnpz3g5x7lkyg48ecedpcd0draaek5c7ynd", "", "", ""),
-            Tv("m/0'/0'", "test1ux0rnahfzqt0p363g98c9scxpxsjfspy74qet7", "", "", ""),
-            Tv("m/44'/1'/0'/0/0", "test1428y2937447fxnmvkp0jn2grs3yuw7v8f0ctgs", "", "", ""),
-            Tv("m/120'", "test1f4j2mwk2nkrq0y003l32cagglvaf6g7dch26z6", "", "", ""),
-            Tv("m/45'", "test1nvj735cyh6c66zc9q3rydx8ep93uf8wmzjklku", "", "", ""),
-            Tv("m/46'/1'/0'/0/0", "test1juyykjj6hvvltthtxdaq0yra65xc03ewkfcec2", "", "", ""),
-            Tv("m/200'/1'/0'/0/0", "test1pv9z6vgylcdmk229yas6ykgc8yyhvuqelt82lc", "", "", ""),
-            Tv("m/301'/1'/0'/0/0", "test1798z9sh6ch6n5qs68d5lhet4csmx4nxw4ckmdd", "", "", ""),
-            Tv("m/20'/1'/0'/0/0", "test1m87qtlkdcclecpc3es83p6tvgjj7t6wtj8mtye", "", "", ""),
-            Tv("m/10'/1'/0'/0/0", "test16czkuz60urvtd3efcy4nnqfckje9z8zkmzme7x", "", "", ""),
-            Tv("m/15'/1'/0'/0/0", "test1p93yyy6p26dq80lcw77uhlvsed5kwk5gsvpuv3", "", "", ""),
-            Tv("m/30'/1'/0'/0/0", "test1tuj0pw8jge4cpnwv8csytwfjftyu8z3vkhj994", "", "", ""),
-            Tv("m/21'/1'/0'/0/0", "test1px9jwpwdw0rejlqt9qmelk7hdpnaurgrep8em8", "", "", "")
+            Tv(
+                MnemonicWords.of("gun green cherry guitar barely mango chaos rice absent regular wide since").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0", "cosmos1wqxdz929kh7utgpt6p5cu7xycte340cxrl8t6h", "cosmospub1addwnpepqd640d584qqz2j0hj20cr30axsa3rcednf02uvwdv8j32wzjp769smz9zk2", "I4bza9OOwfN2eaFsT63KelNVebhZcADZPoolefV1pwk=", ""),
+                    WalletData("m/44'/118'/0'/0/1","cosmos1skeamj53fd5772fsjt02xy7gvlwjt49cpfx4uw","cosmospub1addwnpepqfuqv5ff7s7cu6ue2jc934jsufxmq6fxa4ahthzd5jgrwzth02fuq6q9x4h","jTM2MWCaN+yywwa7Kku3uOaPKgxT3i7yDoGgWeE8wyw=", ""),
+                    WalletData("m/44'/118'/0'/0/2","cosmos17r69g2va92pd2ye4mvq40zxtv0zku6me6hea52","cosmospub1addwnpepqgcv3ckf05d5n9rg95nwerf5gccwnaflchte26qlx2zk5e49dmj2x3l4y50","Fr5LjB1+9jJv6/yE4ThfogugTIKJt8CKn+QLanbyX70=", "")
+                )
+            ),
+            Tv(
+                MnemonicWords.of("approve fossil renew stamp outer achieve mushroom type uncover radio abuse off liberty catalog repeat duck early impulse answer bounce correct chief cook general").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1qg2928pkya32te03g2nmjnf086ujpgxyj0k62w","cosmospub1addwnpepq2zkhqnvltqjej23zt33xtfvzyc3s7s6tw68enr7xqtprkgf3xavzrtcel4","Eoqa8B+CSxhtozjIheMe+Q7T2ZurcveJL/CxJjTz5I4=", ""),
+                    WalletData("m/44'/118'/0'/0/1","cosmos1vn2dxpmytcv06zz5ztd3cxdeqddvct7j8enxcm","cosmospub1addwnpepqd8hjj4cw97xdfsd280xvgl2g433fjlq5y5vqjda7qq94s06p893s7pemhx","BjCF5UhDAoe8jT9XIWQ5pkY3Thhx2Tx8JA6aVNEsNXU=", ""),
+                    WalletData("m/44'/118'/0'/0/2","cosmos15vmr7d28xnermswtpurtglkmtyy56yycgfpnrq","cosmospub1addwnpepqw52qarehscctvwyadm09puayyxr82uum7qrmks2ks2wztw9zcy36g3fe8j","7J28wicN9ly4sZ0cN7Gl9P9ULNt7lJVHgurqahRhcR8=", "")
+                )
+            ),
+            Tv(
+                MnemonicWords.of("october shed view vivid horn bracket confirm sting lava fly insane analyst month finger speak riot tone usual").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1ftlulhgat77cyz3waxdx282v2ne7fgja95qv5q","cosmospub1addwnpepqd8netmxxay2arfkvlukvehdgzs68gxaysxad603nzuae3uq52jckfjkutw","CSOPY3BBQEEGn2LBblYzt0Z3iyp/kW+W35oRBruVE2g=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("away disease shaft patrol sorry clip catch inflict traffic repeat bunker filter you member gossip").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos17wp5tzps5e9lqj4dcwhjqh9yyhn7gke2h70mu7","cosmospub1addwnpepq2wava9hvtszngv5s202c3ghestmxs3vx4m7wkjprj6tu5etjg5k534w889","fsxV72uC5vtriEjy7wFtHtmSlmypnAN/OVT+4jTA7nA=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("dream plate axis utility flavor swim odor napkin glide wheat blouse young").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1dg0r5xedrt7hu9xpng80778m3xqfhgfuywn5rw","cosmospub1addwnpepqf0dgpegyw52275q4w3plp3d3n3eq2zny767k27zfxzxn3hf9ycvzzj8k3h","R1BaxCJafULqzaFfkLo9unbbLsRpHE2ZekZ3a3H7omA=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("bronze rebuild analyst elbow connect fold develop secret fringe double divide merry").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1cpeszg0arka0zjh0gejnz4ul2t4px568g62vzx","cosmospub1addwnpepqg8ee45hpzsnqyzdeqkprj4dtggtatzrm7lccapp89pnhhrtp8xh2h0g3du","E0nt2NM8V2HK/6BBFPyDRZu3fnOqpP/OUVLZLye824w=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("jewel attack purpose goat identify regular isolate left funny morning emotion reunion").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1smhcgesdrztd9y3t9mqakgflt7ss7uz7aqn0cv","cosmospub1addwnpepq2adjeyndmqa7ws6e9gavuy0gfkw2hyry6fduwhryt85jf25j0hvuwyjy9v","Xg7Fsnp6Oiwua9hJPRUb3XccO4n71HZHZhi0uEtQadQ=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("blast amount purchase ready what reform crane decline idea ring supreme that inspire sketch toy").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos1jztta7l6l9m00kaf7jvtdw29cqr4d3vnm6ch70","cosmospub1addwnpepq2tqptun2tummcvktjut33ej4ktcpnmgnlgxnsv4j349rv30pq33sk893rn","FIgBLGeZTZ3+4T8IBqH3/c8++5gkMzevFSzck09Fc8A=", ""),
+                )
+            ),
+            Tv(
+                MnemonicWords.of("reason violin squirrel century park catch aim arm buddy all borrow bleak torch clinic cattle").toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData("m/44'/118'/0'/0/0","cosmos174zlrcp6c778zueta84y7cdnk9utkr9ulszd9l","cosmospub1addwnpepqf3ve7nr2wml7kljcgfwfaf5gnk9g6z564fmplpweu5r9c3msrgl5rvmpkg","5MKhiU1GW37L3x94vhcbRULUym+1fh0Yv1luL+UBo7Y=", ""),
+                )
+            )
         )
     }
 }
