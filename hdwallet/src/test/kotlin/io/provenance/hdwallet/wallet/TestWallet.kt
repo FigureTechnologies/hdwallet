@@ -29,7 +29,7 @@ class TestWallet {
 
         val childKey = wallet[vector.path]
 
-        val sig = wallet["m/44'/1'/0'/0/0"].sign( "test".toByteArray().sha256())
+        val sig = childKey.sign( "test".toByteArray().sha256())
         Assert.assertEquals(childKey.address, vector.address)
     }
 
@@ -43,7 +43,7 @@ class TestWallet {
 
     private fun runParallelTestVectors(seed: DeterministicSeed, vectors: List<Tv>) {
         runBlocking {
-            val tasks: List<Deferred<Unit>> = vectors.parallelStream().map {
+            val tasks = vectors.parallelStream().map {
                 async { runBip32Test(seed, it) }
             }.toList()
             // await for all async tests to finish
@@ -53,7 +53,7 @@ class TestWallet {
 
     private fun runParallelTestVectorsSeed(seed: DeterministicSeed, vectors: List<Tv>) {
         runBlocking {
-            val tasks: List<Deferred<Unit>> = vectors.parallelStream().map {
+            val tasks = vectors.parallelStream().map {
                 async { runFromSeedTest(seed, it) }
             }.toList()
             // await for all async tests to finish
