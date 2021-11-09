@@ -3,4 +3,5 @@ dependencies {
         .map { implementation(project(it)) }
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    testCompile("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 }
