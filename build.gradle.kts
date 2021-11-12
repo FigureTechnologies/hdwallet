@@ -10,6 +10,7 @@ buildscript {
 }
 
 plugins {
+    id(Deps.Plugins.grgit.group).version(Deps.Plugins.grgit.version)
 	`maven-publish`
     `java-library`
     idea

@@ -2,8 +2,14 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 
 object Deps {
-    private fun mvn(group: String, name: String, version: String): ModuleDependency =
-        DefaultExternalModuleDependency(group, name, version)
+
+    data class MvnDep(val group: String, val name: String, val version: String) {
+        fun toModuleDependency(): ModuleDependency =
+            DefaultExternalModuleDependency(group, name, version)
+    }
+
+    private fun mvn(group: String, name: String, version: String) =
+        MvnDep(group, name, version).toModuleDependency()
 
     // General deps.
     val bouncycastle = mvn("org.bouncycastle", "bcprov-jdk15on", Versions.bouncyCastle)
@@ -17,4 +23,10 @@ object Deps {
 
     // Test deps.
     val junit = mvn("junit", "junit", Versions.junit)
+
+    // Plugin deps.
+
+    object Plugins {
+        val grgit = MvnDep("org.ajoberstar.grgit", "grgit", Versions.grGit)
+    }
 }

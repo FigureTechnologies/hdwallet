@@ -1,6 +1,8 @@
 object Versions {
     val snapshot = "SNAPSHOT"
 
+    const val grGit = "4.1.0"
+
     const val commonsCodec = "1.15"
     const val bouncyCastle = "1.63"
     const val kotlin = "1.4.32"

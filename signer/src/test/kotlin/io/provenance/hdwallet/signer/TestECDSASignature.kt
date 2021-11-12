@@ -4,13 +4,18 @@ import io.provenance.hdwallet.bip32.ExtKey
 import io.provenance.hdwallet.bip32.toRootKey
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.common.hashing.sha256
+import io.provenance.hdwallet.ec.PrivateKey
+import io.provenance.hdwallet.ec.PrivateKey.Companion
 import io.provenance.hdwallet.ec.secp256k1Curve
 import io.provenance.hdwallet.ec.secp256r1Curve
 import io.provenance.hdwallet.encoding.base16.base16Decode
 import io.provenance.hdwallet.encoding.base16.base16Encode
+import io.provenance.hdwallet.signer.TestJSSEECDSASignature.FixedSecureRandom
 import org.junit.Assert
 import org.junit.Test
 import java.math.BigInteger
+import java.security.SecureRandom
+import kotlin.system.exitProcess
 
 object paths {
     val testnet = "m/44'/1'/0'/0/0'"
@@ -79,7 +84,7 @@ class TestItAll {
 
         listOf(
             TestBCECDSASignature(),
-            // TestJSSEECDSASignature(),
+            TestJSSEECDSASignature(),
         ).map { test ->
             val signer = test.signer()
 
@@ -120,7 +125,22 @@ data class ExpectedSig(val r: BigInteger, val s: BigInteger, val btc: ByteArray)
 class TestBCECDSASignature : TestECDSASignature {
     override fun signer() = BCECSigner()
 }
-//
-//class TestJSSEECDSASignature : TestECDSASignature {
-//    override fun signer(): SignAndVerify = JsseECSigner()
-//}
+
+class TestJSSEECDSASignature : TestECDSASignature {
+    class FixedSecureRandom(seed: ByteArray) : SecureRandom() {
+        private val byteSeq = generateSequence(seed) { seed }.flatMap { it.toList() }
+
+        override fun nextBytes(bytes: ByteArray?) {
+            if (bytes == null || bytes.isEmpty()) {
+                return super.nextBytes(bytes)
+            }
+
+            val nextBytes = byteSeq.take(bytes.size).toList().toByteArray()
+            System.arraycopy(nextBytes, 0, bytes, 0, bytes.size)
+            println("nextBytes:${nextBytes.toList()}")
+        }
+    }
+
+    override fun signer() = JsseECSigner(FixedSecureRandom(byteArrayOf(0x01)))
+}
+
