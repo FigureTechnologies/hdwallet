@@ -5,6 +5,7 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.common.hashing.sha256
 import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -43,13 +44,14 @@ class TestWallet {
 
     private fun runBIP32AsyncTestVectors(vectors: List<Tv>) {
         runBlocking {
-            val tasks = vectors.parallelStream().map {
-                val seed = it.seed
-                val tasks = it.data.map {
-                    async { runBip32Test(seed, it) }
-                }.toList()
-                tasks
-            }.toList().flatten()
+            val tasks = mutableListOf<Deferred<Unit>>()
+            for (vector in vectors) {
+                tasks.addAll(
+                    vector.data.parallelStream().map {
+                        async { runBip32Test(vector.seed, it) }
+                    }.toList()
+                )
+            }
 
             // await for all async tests to finish
             tasks.awaitAll()
@@ -58,13 +60,14 @@ class TestWallet {
 
     private fun runFromSeedAsyncTestVectors(vectors: List<Tv>) {
         runBlocking {
-            val tasks = vectors.parallelStream().map {
-                val seed = it.seed
-                val tasks = it.data.map {
-                    async { runFromSeedTest(seed, it) }
-                }.toList()
-                tasks
-            }.toList().flatten()
+            val tasks = mutableListOf<Deferred<Unit>>()
+            for (vector in vectors) {
+                tasks.addAll(
+                    vector.data.parallelStream().map {
+                        async { runFromSeedTest(vector.seed, it) }
+                    }.toList()
+                )
+            }
 
             // await for all async tests to finish
             tasks.awaitAll()
