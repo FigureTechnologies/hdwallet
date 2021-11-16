@@ -6,6 +6,7 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.bip44.PathElement
 import io.provenance.hdwallet.bip44.PathElements
+import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
 import java.security.KeyException
 
@@ -34,6 +35,7 @@ interface Wallet {
 
 interface Account {
     val address: String
+    val keyPair: ECKeyPair
     fun sign(payload: ByteArray): ByteArray
     operator fun get(index: Int, hardened: Boolean = true): Account
 }
