@@ -17,4 +17,5 @@ object Deps {
 
     // Test deps.
     val junit = mvn("junit", "junit", Versions.junit)
+    val coroutines = mvn("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.coroutines)
 }
