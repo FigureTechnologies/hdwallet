@@ -59,7 +59,8 @@ subprojects {
         ).map(::implementation)
 
         listOf(
-            Deps.junit
+            Deps.junit,
+            Deps.coroutines
         ).map(::testImplementation)
     }
 

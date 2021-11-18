@@ -6,4 +6,5 @@ object Versions {
     const val kotlin = "1.4.32"
     const val jackson = "2.9.7"
     const val junit = "4.13.1"
+    const val coroutines = "1.4.3"
 }
