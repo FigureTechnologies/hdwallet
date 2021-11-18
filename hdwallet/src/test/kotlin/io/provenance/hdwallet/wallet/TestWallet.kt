@@ -11,6 +11,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
+import java.util.stream.Collectors
+import kotlin.streams.toList
 
 class TestWallet {
     private data class WalletData(val path: String, val address: String, val publicKey: String, val privateKey: String, val signature: String)
@@ -49,7 +51,7 @@ class TestWallet {
                 tasks.addAll(
                     vector.data.parallelStream().map {
                         async { runBip32Test(vector.seed, it) }
-                    }.toList()
+                    }.collect(Collectors.toList())
                 )
             }
 
@@ -65,7 +67,7 @@ class TestWallet {
                 tasks.addAll(
                     vector.data.parallelStream().map {
                         async { runFromSeedTest(vector.seed, it) }
-                    }.toList()
+                    }.collect(Collectors.toList())
                 )
             }
 
