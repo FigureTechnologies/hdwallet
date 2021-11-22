@@ -29,8 +29,16 @@ nexusPublishing {
     }
 }
 
+val projectGroup = "io.provenance.hdwallet"
+val projectVersion = project.property("version")?.takeIf { it != "unspecified" } ?: "1.0-SNAPSHOT"
+
+group = projectGroup
+version = projectVersion
+
 
 subprojects {
+    group = projectGroup
+    version = projectVersion
 
     apply {
         plugin("maven-publish")
@@ -40,9 +48,6 @@ subprojects {
         plugin("jacoco")
         plugin("signing")
     }
-
-    group = "io.provenance.hdwallet"
-    version = Versions.projectSnapshot
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
 
