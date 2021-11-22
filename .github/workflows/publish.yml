@@ -48,10 +48,9 @@ jobs:
 
       - name: Publish to Maven Central
         run: |
-          ./gradlew publish \
+          ./gradlew publishToSonatype $(if [ "${{github.event.release.prerelease}}" = "true" ]; then echo 'closeSonatypeStagingRepository'; else echo 'closeAndReleaseSonatypeStagingRepository'; fi) \
             -Pversion=$VERSION \
-            -Psigning.keyId=B7D30ABE -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" \
-            -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg \
+            -Psigning.keyId=B7D30ABE -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg \
             --info
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
