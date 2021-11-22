@@ -29,16 +29,16 @@ nexusPublishing {
     }
 }
 
-val scopeSdkGroup = "io.provenance.hdwallet"
-val scopeSdkVersion = project.property("version")?.takeIf { it != "unspecified" } ?: "1.0-SNAPSHOT"
+val projectGroup = "io.provenance.hdwallet"
+val projectVersion = project.property("version")?.takeIf { it != "unspecified" } ?: "1.0-SNAPSHOT"
 
-group = scopeSdkGroup
-version = scopeSdkVersion
+group = projectGroup
+version = projectVersion
 
 
 subprojects {
-    group = scopeSdkGroup
-    version = scopeSdkVersion
+    group = projectGroup
+    version = projectVersion
 
     apply {
         plugin("maven-publish")
