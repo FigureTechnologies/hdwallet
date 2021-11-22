@@ -10,10 +10,11 @@ buildscript {
 }
 
 plugins {
-	`maven-publish`
+    `maven-publish`
     `java-library`
     idea
     jacoco
+    signing
     id("io.github.gradle-nexus.publish-plugin") version Versions.nexusPublishPlugin
 }
 
@@ -138,6 +139,9 @@ subprojects {
                     }
                 }
             }
+        }
+        signing {
+            sign(publishing.publications["maven"])
         }
     }
 }
