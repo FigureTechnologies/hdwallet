@@ -29,7 +29,7 @@ nexusPublishing {
     }
 }
 
-val scopeSdkGroup = "io.provenance.scope"
+val scopeSdkGroup = "io.provenance.hdwallet"
 val scopeSdkVersion = project.property("version")?.takeIf { it != "unspecified" } ?: "1.0-SNAPSHOT"
 
 group = scopeSdkGroup
