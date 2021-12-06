@@ -3,7 +3,10 @@ package io.provenance.hdwallet.ec
 import io.provenance.hdwallet.ec.bc.toCurvePoint
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
+import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
+import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import java.security.KeyFactory
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
 
@@ -17,4 +20,9 @@ fun JavaPublicKey.toECPublicKey(): PublicKey {
 fun JavaPrivateKey.toECPrivateKey(): PrivateKey {
     val bcec = requireNotNull(this as? BCECPrivateKey) { "key type invalid" }
     return PrivateKey(bcec.d, bcec.parameters.toCurve())
+}
+
+fun PrivateKey.toJavaPrivateKey(): JavaPrivateKey {
+    val keySpec = ECPrivateKeySpec(key, this.curve.bcecParameterSpec)
+    return KeyFactory.getInstance("EC").generatePrivate(keySpec)
 }

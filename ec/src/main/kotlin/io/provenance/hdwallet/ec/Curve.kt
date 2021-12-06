@@ -4,10 +4,14 @@ import io.provenance.hdwallet.ec.bc.toCurve
 import io.provenance.hdwallet.ec.bc.toCurvePoint
 import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.crypto.params.ECDomainParameters
+import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.math.ec.FixedPointCombMultiplier
 import java.math.BigInteger
+import java.security.spec.ECParameterSpec
+import org.bouncycastle.jce.spec.ECParameterSpec as BCECParameterSpec
+import java.security.spec.EllipticCurve
 
 class CurvePoint(val ecPoint: ECPoint) {
     val x: BigInteger = ecPoint.xCoord.toBigInteger()
@@ -18,6 +22,12 @@ class CurvePoint(val ecPoint: ECPoint) {
     fun mul(n: BigInteger): CurvePoint = ecPoint.multiply(n).toCurvePoint()
     fun add(n: CurvePoint): CurvePoint = ecPoint.add(n.ecPoint).toCurvePoint()
     fun normalize(): CurvePoint = ecPoint.normalize().toCurvePoint()
+
+    fun toJavaECPoint(): java.security.spec.ECPoint =
+        java.security.spec.ECPoint(x, y)
+
+    fun toBCECPoint(curve: ECCurve): ECPoint =
+        EC5Util.convertPoint(curve, toJavaECPoint())
 }
 
 data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCurve) {
@@ -31,6 +41,12 @@ data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCu
         val encoded = point.encoded(false)
         return BigInteger(1, encoded.copyOfRange(1, encoded.size))
     }
+
+    fun toJavaEllipticCurve(): EllipticCurve =
+        EC5Util.convertCurve(ecCurve, ecDomainParameters.seed)
+
+    fun toBCEllipticCurve(): ECCurve =
+        EC5Util.convertCurve(toJavaEllipticCurve())
 
     private fun fpcMul(pk: BigInteger): CurvePoint {
         val postProcessedPrivateKey =
@@ -49,3 +65,9 @@ val secp256r1Curve = Curve.lookup("secp256r1")
 
 // Provenance defaults to the secp256k1 EC curve for keys and signatures.
 val CURVE = secp256k1Curve
+
+val Curve.ecParameterSpec: ECParameterSpec
+    get() = ECParameterSpec(toJavaEllipticCurve(), g.toJavaECPoint(), n, ecDomainParameters.h.toInt())
+
+val Curve.bcecParameterSpec: BCECParameterSpec
+    get() = toBCEllipticCurve().let { bcCurve -> BCECParameterSpec(bcCurve, g.toBCECPoint(bcCurve), n, ecDomainParameters.h) }
