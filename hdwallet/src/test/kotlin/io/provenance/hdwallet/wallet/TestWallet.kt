@@ -12,7 +12,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 import java.util.stream.Collectors
-import kotlin.streams.toList
 
 class TestWallet {
     private data class WalletData(val path: String, val address: String, val publicKey: String, val privateKey: String, val signature: String)
@@ -27,11 +26,8 @@ class TestWallet {
     }
 
     private fun runBip32Test(seed: DeterministicSeed, walletData: WalletData) {
-        val encodedKey = seed.toRootKey().serialize().base58EncodeChecked()
-        val wallet: Wallet = Wallet.fromBip32("cosmos", encodedKey)
-
-        val childKey = wallet[walletData.path]
-
+        val encodedKey = seed.toRootKey().childKey(walletData.path).serialize().base58EncodeChecked()
+        val childKey: Account = Account.fromBip32("cosmos", encodedKey)
         val sig = childKey.sign( "test".toByteArray().sha256())
         Assert.assertEquals(childKey.address, walletData.address)
     }

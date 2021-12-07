@@ -96,6 +96,10 @@ data class ExtKey(
         path.parseBIP44Path().fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
 
     fun childKey(index: Int, hardened: Boolean = true): ExtKey {
+        if (depth == AccountType.ADDRESS) {
+            throw KeyException("cannot create key beyond current scope $depth")
+        }
+
         if (hardened && keyPair.privateKey.key == BigInteger.ZERO) {
             throw KeyException("private key required for hardened child keys")
         }
