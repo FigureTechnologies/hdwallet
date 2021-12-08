@@ -15,16 +15,6 @@ interface Wallet {
     operator fun get(path: String): Account = get(PathElements.from(path))
 
     companion object {
-        fun fromBip32(hrp: String, bip32: String): Wallet {
-            val data = try {
-                bip32.base58DecodeChecked()
-            } catch (e: Throwable) {
-                // Eat the exception so no sensitive info gets logged.
-                throw KeyException()
-            }
-            return DefaultWallet(hrp, ExtKey.deserialize(data))
-        }
-
         fun fromSeed(hrp: String, seed: DeterministicSeed): Wallet =
             DefaultWallet(hrp, seed.toRootKey())
 
@@ -38,6 +28,18 @@ interface Account {
     val keyPair: ECKeyPair
     fun sign(payload: ByteArray): ByteArray
     operator fun get(index: Int, hardened: Boolean = true): Account
+
+    companion object {
+        fun fromBip32(hrp: String, bip32: String): Account {
+            val data = try {
+                bip32.base58DecodeChecked()
+            } catch (e: Throwable) {
+                // Eat the exception so no sensitive info gets logged.
+                throw KeyException()
+            }
+            return DefaultAccount(hrp, ExtKey.deserialize(data))
+        }
+    }
 }
 
 interface Discoverer {

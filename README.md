@@ -37,8 +37,8 @@ val wallet = Wallet.fromSeed(hrp, seed)
 // Convert a mnemonic into a wallet.
 val wallet = Wallet.fromMnemonic(hrp, wordlist)
 
-// Convert a base58-encoded bip32 key into a wallet.
-val wallet = Wallet.fromBip32(hrp, base58EncodedBip32Key)
+// Convert a base58-encoded bip32 key into an account.
+val account = Account.fromBip32(hrp, base58EncodedBip32Key)
 
 // Derive a child key from the root wallet.
 val testnetPath = "m/44'/1'/0'/0/0"
