@@ -4,10 +4,11 @@ import io.provenance.hdwallet.bech32.toBech32
 import io.provenance.hdwallet.bip32.AccountType.ROOT
 import io.provenance.hdwallet.bip32.ExtKey
 import io.provenance.hdwallet.bip44.PathElement
-import io.provenance.hdwallet.common.hashing.sha256
 import io.provenance.hdwallet.common.hashing.sha256hash160
 import io.provenance.hdwallet.ec.ECKeyPair
+import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
 import io.provenance.hdwallet.signer.BCECSigner
+import io.provenance.hdwallet.signer.Signer
 
 class DefaultWallet(private val hrp: String, private val key: ExtKey) : Wallet {
     init {
@@ -19,21 +20,22 @@ class DefaultWallet(private val hrp: String, private val key: ExtKey) : Wallet {
         .let { DefaultAccount(hrp, it) }
 }
 
-class DefaultAccount(hrp: String, key: ExtKey) : Account {
+class DefaultAccount(
+    private val hrp: String,
+    private val key: ExtKey,
+    private val signer: Signer = BCECSigner()
+) : Account {
     override val address: String =
         key.keyPair.publicKey.compressed().sha256hash160().toBech32(hrp).address
 
+    override fun serializeExtKey(publicOnly: Boolean): String =
+        key.serialize(publicOnly).base58EncodeChecked()
+
     override val keyPair: ECKeyPair = key.keyPair
 
-    private val keyMaker = hrp to { index: Int, hard: Boolean -> key.childKey(index, hard) }
-
-    private val signature = BCECSigner()
-
-    private val signer = { bytes: ByteArray -> signature.sign(key.keyPair.privateKey, bytes.sha256()) }
-
-    override fun sign(payload: ByteArray): ByteArray =
-        signer.invoke(payload).encodeAsBTC()
+    override fun sign(payload: ByteArray, hash: (ByteArray) -> ByteArray): ByteArray =
+        signer.sign(key.keyPair.privateKey, hash(payload)).encodeAsBTC()
 
     override fun get(index: Int, hardened: Boolean): Account =
-        DefaultAccount(keyMaker.first, keyMaker.second(index, hardened))
+        DefaultAccount(hrp, key.childKey(index, hardened), signer)
 }
