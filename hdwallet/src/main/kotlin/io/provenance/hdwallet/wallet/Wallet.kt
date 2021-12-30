@@ -130,7 +130,7 @@ interface Account {
     /**
      * Sign the supplied payload's hash.
      * @param payload The full byte payload to sign.
-     * @param hash The hashing algorithm to use on the payload.
+     * @param hash The hashing algorithm to use on the payload [default: sha256]
      * @return The raw encoded ecdsa (r||s) btc format signature.
      */
     fun sign(payload: ByteArray, hash: (ByteArray) -> ByteArray = ByteArray::sha256): ByteArray
