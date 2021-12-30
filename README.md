@@ -20,7 +20,7 @@ Current published version:
 
 ## Gradle
 
-```
+```kotlin
 implementation("io.provenance.hdwallet", "hdwallet", "$version")
 ```
 
@@ -31,40 +31,40 @@ implementation("io.provenance.hdwallet", "hdwallet", "$version")
 ### Shortcut versions
 
 ```kotlin
-// Convert a seed into a wallet.
+// Convert a seed into a wallet:
 val wallet = Wallet.fromSeed(hrp, seed)
 
-// Convert a mnemonic into a wallet.
-val wallet = Wallet.fromMnemonic(hrp, wordlist)
+// Convert a mnemonic into a wallet:
+val wallet = Wallet.fromMnemonic(hrp, "passphrase".toCharArray(), wordlist)
 
-// Convert a base58-encoded bip32 key into an account.
+// Convert a base58-encoded bip32 key into an account:
 val account = Account.fromBip32(hrp, base58EncodedBip32Key)
 
-// Derive a child key from the root wallet.
+// Derive a child key from the root wallet:
 val testnetPath = "m/44'/1'/0'/0/0"
 val childKey = wallet[testnetPath]
 
-// Sign a payload
-val signature = BCECSigner().sign(childKey.keyPair.privateKey, "test".toByteArray().sha256())
+// Sign a payload:
+val signature = BCECSigner().sign(childKey.keyPair.privateKey, "test-payload".toByteArray().sha256())
 ```
 
 ### Full key derivation (the shortcuts outlined above perform the following for you).
 
 ```kotlin
-// Generate the seed from the mnemonic + passphrase.
+// Generate the seed from the mnemonic + passphrase:
 val seed = MnemonicWords.of("hip valley wave rider ... ...").toSeed("trezor".toCharArray())
 
-// Derive the root extkey.
+// Derive the root extended key:
 val rootKey = seed.toRootKey(/* curve = secp256k1 */) // optional curve parameter, default: secp256k1
 
-// Derive the child key based on path.
+// Derive the child key based on path:
 val testnetPath = "m/44'/1'/0'/0/0"
 val childKey = rootKey.childKey(testnetPath)
 
-// Create a new BouncyCastle signer
+// Create a new BouncyCastle signer:
 val signer = BCECSigner()
 
-// Generate an ecdsa signature.
+// Generate an ECDSA signature:
 val payloadHash = "test".toByteArray().sha256()
 val sig = signer.sign(childKey.keyPair.privateKey, payloadHash)
 ```

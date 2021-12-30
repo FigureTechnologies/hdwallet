@@ -24,10 +24,12 @@ class DefaultAccount(hrp: String, key: ExtKey) : Account {
         key.keyPair.publicKey.compressed().sha256hash160().toBech32(hrp).address
 
     override val keyPair: ECKeyPair = key.keyPair
-    
+
     private val keyMaker = hrp to { index: Int, hard: Boolean -> key.childKey(index, hard) }
-    private val signateur = BCECSigner()
-    private val signer = { bytes: ByteArray -> signateur.sign(key.keyPair.privateKey, bytes.sha256()) }
+
+    private val signature = BCECSigner()
+
+    private val signer = { bytes: ByteArray -> signature.sign(key.keyPair.privateKey, bytes.sha256()) }
 
     override fun sign(payload: ByteArray): ByteArray =
         signer.invoke(payload).encodeAsBTC()
