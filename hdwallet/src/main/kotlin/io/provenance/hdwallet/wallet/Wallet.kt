@@ -6,35 +6,40 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.bip44.PathElement
 import io.provenance.hdwallet.bip44.PathElements
+import io.provenance.hdwallet.common.hashing.sha256
+import io.provenance.hdwallet.ec.CURVE
+import io.provenance.hdwallet.ec.Curve
 import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
 import java.security.KeyException
 
+/**
+ * Wallets are the root key representation used to derive [Account]s.
+ */
 interface Wallet {
     operator fun get(path: List<PathElement>): Account
     operator fun get(path: String): Account = get(PathElements.from(path))
 
     companion object {
         /**
-         * Create a new wallet from a root key.
-         *
-         * @param hrp The human-readable prefix to use when generating bech32 addresses from this wallet.
-         * @param rootKey The root key to use when generating this wallet.
-         * @return [Wallet]
-         */
-        fun fromRootKey(hrp: String, rootKey: ExtKey): Wallet = DefaultWallet(hrp, rootKey)
-
-        /**
          * Create a new wallet from a deterministic seed value.
          *
          * @param hrp The human-readable prefix to use when generating bech32 addresses from this wallet.
          * @param seed The deterministic seed used to generate this wallet.
-         * @param testnet A flag that specifies if this wallet corresponds to a test net. If omitted, the default
-         * `false` will be used.
+         * @param publicKeyOnly Flag specifying to generate only public keys [default: false]
+         * @param testnet Flag specifying if this wallet corresponds to a test net. [default: false]
          * @return [Wallet]
          */
-        fun fromSeed(hrp: String, seed: DeterministicSeed, testnet: Boolean = false): Wallet =
-            DefaultWallet(hrp, seed.toRootKey(testnet = testnet))
+        fun fromSeed(
+            hrp: String,
+            seed: DeterministicSeed,
+            publicKeyOnly: Boolean = false,
+            testnet: Boolean = false,
+            curve: Curve = CURVE,
+        ): Wallet = DefaultWallet(
+            hrp = hrp,
+            key = seed.toRootKey(publicKeyOnly = publicKeyOnly, testnet = testnet, curve = curve)
+        )
 
         /**
          * Create a new wallet from a BIP32 mnemonic phrase.
@@ -52,16 +57,24 @@ interface Wallet {
          * @param hrp The human-readable prefix to use when generating bech32 addresses from this wallet.
          * @param passphrase The passphrase to use when generating the seed that will be used to create this wallet.
          * @param mnemonicWords The BIP39 mnemonic phrase to use to generate the seed for this wallet.
-         * @param testnet A flag that specifies if this wallet corresponds to a test net. If omitted, the default
-         * `false` will be used.
+         * @param publicKeyOnly Flag specifying to generate only public keys [default: false]
+         * @param testnet Flag specifying if this wallet corresponds to a test net. [default: false]
          * @return [Wallet]
          */
         fun fromMnemonic(
             hrp: String,
             passphrase: CharArray,
             mnemonicWords: MnemonicWords,
-            testnet: Boolean = false
-        ): Wallet = fromSeed(hrp = hrp, seed = mnemonicWords.toSeed(passphrase), testnet = testnet)
+            publicKeyOnly: Boolean = false,
+            testnet: Boolean = false,
+            curve: Curve = CURVE,
+        ): Wallet = fromSeed(
+            hrp = hrp,
+            seed = mnemonicWords.toSeed(passphrase),
+            publicKeyOnly = publicKeyOnly,
+            testnet = testnet,
+            curve = curve,
+        )
 
         /**
          * Create a new wallet from a BIP32 mnemonic phrase.
@@ -79,31 +92,72 @@ interface Wallet {
          * @param hrp The human-readable prefix to use when generating bech32 addresses from this wallet.
          * @param passphrase The passphrase to use when generating the seed that will be used to create this wallet.
          * @param mnemonicWords The BIP39 mnemonic phrase to use to generate the seed for this wallet.
-         * @param testnet A flag that specifies if this wallet corresponds to a test net. If omitted, the default
-         * `false` will be used.
+         * @param publicKeyOnly Flag specifying to generate only public keys [default: false]
+         * @param testnet Flag specifying if this wallet corresponds to a test net. [default: false]
          * @return [Wallet]
          */
         fun fromMnemonic(
             hrp: String,
             passphrase: String,
             mnemonicWords: MnemonicWords,
-            testnet: Boolean = false
+            publicKeyOnly: Boolean = false,
+            testnet: Boolean = false,
+            curve: Curve = CURVE,
         ): Wallet = fromMnemonic(
             hrp = hrp,
             passphrase = passphrase.toCharArray(),
             mnemonicWords = mnemonicWords,
-            testnet = testnet
+            publicKeyOnly = publicKeyOnly,
+            testnet = testnet,
+            curve = curve,
         )
     }
 }
 
+/**
+ * Accounts are initialized from an [ExtKey] and used to transact on various blockchains.
+ */
 interface Account {
+    /**
+     * Bech32 encoded address for this account's extended key.
+     */
     val address: String
+
+    /**
+     * Elliptic curve keypair for this account.
+     */
     val keyPair: ECKeyPair
-    fun sign(payload: ByteArray): ByteArray
+
+    /**
+     * Serialize this account's extended key to the string xprv / xpub representation.
+     * @param publicOnly If true, generate the xpub. If false, generate the xprv.
+     * @return The extended key in xprv / xpub string format.
+     */
+    fun serializeExtKey(publicOnly: Boolean = false): String
+
+    /**
+     * Sign the supplied payload's hash.
+     * @param payload The full byte payload to sign.
+     * @param hash The hashing algorithm to use on the payload [default: sha256]
+     * @return The raw encoded ecdsa (r||s) btc format signature.
+     */
+    fun sign(payload: ByteArray, hash: (ByteArray) -> ByteArray = ByteArray::sha256): ByteArray
+
+    /**
+     * Path down to the next extended key derived from this account's extended key.
+     * @param index The index of the next key
+     * @param hardened To harden the derived key or not to.
+     * @return [Account]
+     */
     operator fun get(index: Int, hardened: Boolean = true): Account
 
     companion object {
+        /**
+         * Convert a base58 check encoded bip32 serialized extended key back into an account.
+         * @param hrp The human-readable prefix for the network this key will be used with.
+         * @param bip32 The base58 check encoded xprv / xpub extended key string.
+         * @return [Account]
+         */
         fun fromBip32(hrp: String, bip32: String): Account {
             val data = try {
                 bip32.base58DecodeChecked()
@@ -116,6 +170,9 @@ interface Account {
     }
 }
 
+/**
+ * Account discoverer interface to determine used addresses from the account.
+ */
 interface Discoverer {
     fun discover(account: Account, query: (path: String) -> List<Account>): List<Account>
 }
