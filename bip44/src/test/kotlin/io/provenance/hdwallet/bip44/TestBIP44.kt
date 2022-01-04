@@ -1,18 +1,18 @@
 package io.provenance.hdwallet.bip44
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class TestBIP44 {
     private data class Tv(val path: String, val parsed: List<PathElement> = emptyList(), val valid: Boolean = true)
 
     private val testVector = { v: Tv ->
         val parsed = runCatching { v.path.parseBIP44Path() }
-        Assert.assertEquals("${v.path} valid", v.valid, parsed.isSuccess)
+        assertEquals(v.valid, parsed.isSuccess, "${v.path} valid")
         if (v.valid) {
             val res = parsed.getOrThrow()
-            Assert.assertEquals("${v.path} size", v.parsed.size, res.size)
-            Assert.assertEquals("${v.path} contents", v.parsed, res)
+            assertEquals(v.parsed.size, res.size, "${v.path} size")
+            assertEquals(v.parsed, res, "${v.path} contents")
         }
     }
 

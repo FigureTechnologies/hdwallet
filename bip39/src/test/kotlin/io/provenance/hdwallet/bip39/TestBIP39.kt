@@ -4,8 +4,9 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import io.provenance.hdwallet.bip39.json.Json.asTree
 import io.provenance.hdwallet.bip39.json.Json.om
 import io.provenance.hdwallet.common.chararray.split
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 open class TestBIP39 {
     private val passphrase = "TREZOR".toCharArray()
@@ -20,11 +21,11 @@ open class TestBIP39 {
         val mnemonic = MnemonicWords(tv.mnemonic.toCharArray().split(' '))
         val seed = mnemonic.toSeed(passphrase)
 
-        Assert.assertEquals(tv.mnemonic, mnemonic.words.joinToString(" ") { it.concatToString() })
-        Assert.assertEquals(tv.seed, seed.value.hex())
+        assertEquals(tv.mnemonic, mnemonic.words.joinToString(" ") { it.concatToString() })
+        assertEquals(tv.seed, seed.value.hex())
 
         val createdMnemonic = wordList.createMnemonic(tv.entropy.unhex())
-        Assert.assertTrue(MnemonicWords(tv.mnemonic.toCharArray().split(' ')).words.deepEquals(createdMnemonic.words))
+        assertTrue(MnemonicWords(tv.mnemonic.toCharArray().split(' ')).words.deepEquals(createdMnemonic.words))
     }
 
     private fun getTestVectors(lang: String): List<TV> {

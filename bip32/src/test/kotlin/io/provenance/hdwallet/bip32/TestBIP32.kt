@@ -4,14 +4,16 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip44.parseBIP44Path
 import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
 import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 // test: m/44'/1'/0'/0/0'
 // prod: m/44'/505'/0'/0/0
 
 // https://en.bitcoin.it/wiki/BIP_0032
 class TestBIP32 {
+
     private fun String.unhex(): ByteArray {
         val s = if (length % 2 != 0) "0$this" else this
         return s.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
@@ -36,15 +38,15 @@ class TestBIP32 {
             val derivedXPubEncoded = derivedXPub.base58EncodeChecked()
             val derivedXPrvEncoded = derivedXPrv.base58EncodeChecked()
 
-            Assert.assertEquals("xpub path:${vector.path}", vector.xpub, derivedXPubEncoded)
-            Assert.assertEquals("xprv path:${vector.path}", vector.xprv, derivedXPrvEncoded)
+            assertEquals(vector.xpub, derivedXPubEncoded, "xpub path:${vector.path}")
+            assertEquals(vector.xprv, derivedXPrvEncoded, "xprv path:${vector.path}")
 
             // bip32 -> extKey -> key
             val tvXPub = ExtKey.deserialize(decodedXPub)
             val tvXPrv = ExtKey.deserialize(decodedXPrv)
 
-            Assert.assertArrayEquals(key.parentKeyFingerprint.bytes, tvXPub.parentKeyFingerprint.bytes)
-            Assert.assertArrayEquals(key.parentKeyFingerprint.bytes, tvXPrv.parentKeyFingerprint.bytes)
+            assertArrayEquals(key.parentKeyFingerprint.bytes, tvXPub.parentKeyFingerprint.bytes)
+            assertArrayEquals(key.parentKeyFingerprint.bytes, tvXPrv.parentKeyFingerprint.bytes)
         }
     }
 

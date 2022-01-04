@@ -8,9 +8,9 @@ import io.provenance.hdwallet.ec.secp256k1Curve
 import io.provenance.hdwallet.ec.secp256r1Curve
 import io.provenance.hdwallet.encoding.base16.base16Decode
 import io.provenance.hdwallet.encoding.base16.base16Encode
-import org.junit.Assert
-import org.junit.Test
 import java.math.BigInteger
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 object paths {
     val testnet = "m/44'/1'/0'/0/0'"
@@ -94,20 +94,20 @@ class TestItAll {
                 val testnetSig = signer.sign(keys.testnet.keyPair.privateKey, payloadHash)
                 val mainnetSig = signer.sign(keys.mainnet.keyPair.privateKey, payloadHash)
 
-                Assert.assertEquals("${test.javaClass.simpleName} $name root r", ekp.expectedRoot.r, rootSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} $name root s", ekp.expectedRoot.s, rootSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} $name root btc", ekp.expectedRoot.btc.base16Encode(), rootSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} $name root verify", true, signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig))
+                assertEquals(ekp.expectedRoot.r, rootSig.r, "${test.javaClass.simpleName} $name root r")
+                assertEquals(ekp.expectedRoot.s, rootSig.s, "${test.javaClass.simpleName} $name root s")
+                assertEquals(ekp.expectedRoot.btc.base16Encode(), rootSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name root btc")
+                assertEquals(true, signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig), "${test.javaClass.simpleName} $name root verify")
 
-                Assert.assertEquals("${test.javaClass.simpleName} $name test r", ekp.expectedTestnet.r, testnetSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} $name test s", ekp.expectedTestnet.s, testnetSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} $name test btc", ekp.expectedTestnet.btc.base16Encode(), testnetSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} $name test verify", true, signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig))
+                assertEquals(ekp.expectedTestnet.r, testnetSig.r, "${test.javaClass.simpleName} $name test r")
+                assertEquals(ekp.expectedTestnet.s, testnetSig.s, "${test.javaClass.simpleName} $name test s")
+                assertEquals(ekp.expectedTestnet.btc.base16Encode(), testnetSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name test btc")
+                assertEquals(true, signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig), "${test.javaClass.simpleName} $name test verify")
 
-                Assert.assertEquals("${test.javaClass.simpleName} $name main r", ekp.expectedMainnet.r, mainnetSig.r)
-                Assert.assertEquals("${test.javaClass.simpleName} $name main s", ekp.expectedMainnet.s, mainnetSig.s)
-                Assert.assertEquals("${test.javaClass.simpleName} $name main btc", ekp.expectedMainnet.btc.base16Encode(), mainnetSig.encodeAsBTC().base16Encode())
-                Assert.assertEquals("${test.javaClass.simpleName} $name main verify", true, signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig))
+                assertEquals(ekp.expectedMainnet.r, mainnetSig.r, "${test.javaClass.simpleName} $name main r",)
+                assertEquals(ekp.expectedMainnet.s, mainnetSig.s, "${test.javaClass.simpleName} $name main s",)
+                assertEquals(ekp.expectedMainnet.btc.base16Encode(), mainnetSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name main btc",)
+                assertEquals(true, signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig), "${test.javaClass.simpleName} $name main verify")
             }
         }
 

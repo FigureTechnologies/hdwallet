@@ -16,6 +16,8 @@ object Deps {
     val kotlinReflect = mvn("org.jetbrains.kotlin", "kotlin-reflect", Versions.kotlin)
 
     // Test deps.
-    val junit = mvn("junit", "junit", Versions.junit)
+    val junitJupiterApi = mvn("org.junit.jupiter", "junit-jupiter-api", Versions.junit)
+    val junitJupiterEngine = mvn("org.junit.jupiter", "junit-jupiter-engine", Versions.junit)
+
     val coroutines = mvn("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.coroutines)
 }

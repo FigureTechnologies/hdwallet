@@ -1,7 +1,7 @@
 package io.provenance.hdwallet.bech32
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 // https://en.bitcoin.it/wiki/BIP_0173#Test_vectors
 class TestBech32 {
@@ -47,7 +47,7 @@ class TestBech32 {
 
         for (vector in vectors) {
             val value = Result.runCatching { Bech32.decode(vector.value.address) }
-            Assert.assertEquals(value.isSuccess, vector.value.valid)
+            assertEquals(value.isSuccess, vector.value.valid)
         }
     }
 }
