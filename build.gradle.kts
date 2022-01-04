@@ -79,7 +79,8 @@ subprojects {
         ).map(::implementation)
 
         listOf(
-            Deps.junit,
+            Deps.junitJupiterApi,
+            Deps.junitJupiterEngine,
             Deps.coroutines
         ).map(::testImplementation)
     }
@@ -87,6 +88,7 @@ subprojects {
     tasks {
         test {
             finalizedBy(jacocoTestReport)
+            useJUnitPlatform()
         }
 
         jacocoTestReport {

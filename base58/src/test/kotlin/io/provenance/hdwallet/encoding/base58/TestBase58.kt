@@ -1,8 +1,9 @@
 package io.provenance.hdwallet.encoding.base58
 
 import io.provenance.hdwallet.encoding.base16.base16Decode
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class TestBase58 {
     @Test
@@ -22,10 +23,10 @@ class TestBase58 {
             val kd = vector.key.base58Decode().base58Encode()
             val vd = vector.value.base58Encode().base58Decode()
 
-            Assert.assertEquals(vector.key, enc)
-            Assert.assertArrayEquals(dec, vector.value)
-            Assert.assertEquals(kd, vector.key)
-            Assert.assertArrayEquals(vd, vector.value)
+            assertEquals(vector.key, enc)
+            assertArrayEquals(dec, vector.value)
+            assertEquals(kd, vector.key)
+            assertArrayEquals(vd, vector.value)
         }
     }
 }
