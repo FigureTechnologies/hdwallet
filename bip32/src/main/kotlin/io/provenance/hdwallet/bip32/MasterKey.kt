@@ -26,25 +26,28 @@ private const val CHAINCODE_SIZE = 32
 private const val EXTENDED_KEY_SIZE: Int = 78
 
 private fun hmacSha512(key: ByteArray, input: ByteArray): ByteArray =
-    Mac.getInstance(HMAC_SHA512).let {
+    Mac.getInstance(HMAC_SHA512).run {
         val spec = SecretKeySpec(key, HMAC_SHA512)
-        it.init(spec)
-        it.doFinal(input)
+        init(spec)
+        doFinal(input)
     }
 
-class ExtKeyVersion(val bytes: ByteArray) {
+@JvmInline
+value class ExtKeyVersion(val bytes: ByteArray) {
     init {
         require(bytes.size == 4) { "invalid version len" }
     }
 }
 
-class ExtKeyFingerprint(val bytes: ByteArray = byteArrayOf(0, 0, 0, 0)) {
+@JvmInline
+value class ExtKeyFingerprint(val bytes: ByteArray = byteArrayOf(0, 0, 0, 0)) {
     init {
         require(bytes.size == 4) { "invalid fingerprint len" }
     }
 }
 
-class ExtKeyChainCode(val bytes: ByteArray) {
+@JvmInline
+value class ExtKeyChainCode(val bytes: ByteArray) {
     init {
         require(bytes.size == 32) { "invalid chaincode len" }
     }
@@ -89,7 +92,7 @@ data class ExtKey(
         }
 
         return bb.array()
-	}
+    }
 
     fun childKey(path: String): ExtKey =
         path.parseBIP44Path().fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
@@ -199,7 +202,11 @@ data class ExtKey(
 }
 
 // https://en.bitcoin.it/wiki/BIP_0032
-fun DeterministicSeed.toRootKey(publicKeyOnly: Boolean = false, testnet: Boolean = false, curve: Curve = DEFAULT_CURVE): ExtKey {
+fun DeterministicSeed.toRootKey(
+    publicKeyOnly: Boolean = false,
+    testnet: Boolean = false,
+    curve: Curve = DEFAULT_CURVE
+): ExtKey {
     val i = hmacSha512(BITCOIN_SEED, value)
     val il = i.copyOfRange(0, PRIVATE_KEY_SIZE)
     val ir = i.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)
