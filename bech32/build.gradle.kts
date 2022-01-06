@@ -1,3 +1,3 @@
 dependencies {
-    implementation(Deps.commonsCodec)
+    implementation("commons-codec", "commons-codec", Versions.commonsCodec)
 }
