@@ -132,6 +132,21 @@ subprojects {
                             name.set("Stephen Cirner")
                             email.set("scirner@figure.com")
                         }
+                        developer {
+                            id.set("mtps")
+                            name.set("Phil Story")
+                            email.set("phil@figure.com")
+                        }
+                        developer {
+                            id.set("jhorecny-figure")
+                            name.set("Josh Horecny")
+                            email.set("jhorecny@figure.com")
+                        }
+                        developer {
+                            id.set("mwoods-figure")
+                            name.set("Mike Woods")
+                            email.set("mwoods@figure.com")
+                        }
                     }
 
                     scm {
