@@ -1,12 +1,9 @@
 package io.provenance.hdwallet.ec.extensions
 
-import io.provenance.hdwallet.ec.Curve
 import io.provenance.hdwallet.ec.PrivateKey
 import io.provenance.hdwallet.ec.PublicKey
 import io.provenance.hdwallet.ec.bcecParameterSpec
 import io.provenance.hdwallet.ec.ecParameterSpec
-import io.provenance.hdwallet.ec.toBigInteger
-import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.spec.ECPublicKeySpec
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
@@ -36,18 +33,6 @@ fun JavaPublicKey.toBCECPublicKey(): BCECPublicKey? =
         is JavaECPublicKey -> toBCECPublicKey()
         else -> null
     }
-
-/**
- * Convert a BouncyCastle [BCECPublicKey] to a [Pair] of ([BigInteger], [Curve]).
- *
- * See kethereum's EllipticCurveKeyPairGenerator for conversion of [JavaECPublicKey] > [BCECPublicKey] > [org.kethereum.model.PublicKey]]
- *
- * @param compressed True if the encoding of the key should be compressed before being packed into a [BigInteger]
- *
- * @return Pair<BigInteger, Curve>
- */
-fun BCECPublicKey.toBigIntegerPair(compressed: Boolean = false): Pair<BigInteger, Curve> =
-    Pair(BigInteger(1, q.getEncoded(compressed)), parameters.toCurve())
 
 /**
  * Convert a Java cryptographic [JavaPublicKey] to a hdwallet library EC [PublicKey].
@@ -87,15 +72,6 @@ fun PrivateKey.toJavaECPrivateKey(): JavaPrivateKey =
  * @return [BCECPrivateKey] The wrapped EC private key.
  */
 fun JavaECPrivateKey.toBCECPrivateKey(): BCECPrivateKey = BCECPrivateKey(this, BouncyCastlePQCProvider.CONFIGURATION)
-
-/**
- * Convert a BouncyCastle [BCECPublicKey] to a [Pair] of ([BigInteger], [Curve]).
- *
- * See kethereum's EllipticCurveKeyPairGenerator for conversion of [JavaECPublicKey] > [BCECPublicKey] > [org.kethereum.model.PublicKey]]
- *
- * @return Pair<BigInteger, Curve>
- */
-fun BCECPrivateKey.toBigIntegerPair(): Pair<BigInteger, Curve> = Pair(d, parameters.toCurve())
 
 /**
  * Convert a Sun Security Provider [JavaPublicKey] to a Bouncy Castle elliptic curve (EC) public key, [BCECPublicKey].

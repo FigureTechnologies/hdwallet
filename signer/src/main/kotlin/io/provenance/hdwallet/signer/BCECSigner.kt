@@ -12,6 +12,7 @@ import org.bouncycastle.crypto.signers.HMacDSAKCalculator
  *
  */
 open class BCECSigner : SignAndVerify {
+
     private fun <T> signer(fn: ECDSASigner.() -> T): T {
         return ECDSASigner(HMacDSAKCalculator(SHA256Digest())).fn()
     }

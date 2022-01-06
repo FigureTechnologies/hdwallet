@@ -18,23 +18,26 @@ object Bech32 {
 
     /**
      * Decodes a Bech32 String
+     *
+     * @param bech32 The bech32 encoded string to decode
+     * @return [Bech32Data]]
      */
     fun decode(bech32: String): Bech32Data {
         require(bech32.length in MIN_VALID_LENGTH..MAX_VALID_LENGTH) { "invalid bech32 string length" }
-        require(bech32.toCharArray().all { c -> c.toInt() in MIN_VALID_CODEPOINT..MAX_VALID_CODEPOINT }) {
+        require(bech32.toCharArray().all { c -> c.code in MIN_VALID_CODEPOINT..MAX_VALID_CODEPOINT }) {
             val invalidChars = bech32.toCharArray()
-                .filter { it.toInt() !in MIN_VALID_CODEPOINT..MAX_VALID_CODEPOINT }
+                .filter { it.code !in MIN_VALID_CODEPOINT..MAX_VALID_CODEPOINT }
             "invalid characters in bech32: $invalidChars"
         }
-        require(bech32 == bech32.toLowerCase() || bech32 == bech32.toUpperCase()) {
+        require(bech32 == bech32.lowercase() || bech32 == bech32.uppercase()) {
             "bech32 must be either all upper or lower case"
         }
         require(bech32.substring(1).dropLast(CHECKSUM_SIZE).contains('1')) {
             "invalid index of '1'"
         }
 
-        val hrp = bech32.substringBeforeLast('1').toLowerCase()
-        val dataString = bech32.substringAfterLast('1').toLowerCase()
+        val hrp = bech32.substringBeforeLast('1').lowercase()
+        val dataString = bech32.substringAfterLast('1').lowercase()
 
         require(charset.toList().containsAll(dataString.toList())) {
             "invalid data encoding character in bech32"
@@ -120,6 +123,8 @@ object Bech32 {
 
     /**
      * Calculates a bech32 checksum based on BIP 173 specification
+     *
+     * @param hrp The human-readable prefix string used in the bech32 address.
      */
     fun checksum(hrp: String, data: ByteArray): ByteArray {
         var values = expandHrp(hrp)
@@ -137,7 +142,7 @@ object Bech32 {
      * Expands the human readable prefix per BIP173 for Checksum encoding
      */
     private fun expandHrp(hrp: String) = let {
-        hrp.map { c -> c.toInt() shr 5 } + 0 + hrp.map { c -> c.toInt() and 31 }
+        hrp.map { c -> c.code shr 5 } + 0 + hrp.map { c -> c.code and 31 }
     }.toIntArray()
 
     /**

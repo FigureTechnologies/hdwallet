@@ -3,7 +3,11 @@ package io.provenance.hdwallet.bip39
 import javax.crypto.SecretKey
 import javax.security.auth.Destroyable
 
-class DeterministicSeed(val value: ByteArray) : Destroyable {
+@JvmInline
+value class DeterministicSeed(val value: ByteArray) : Destroyable {
+    /**
+     * Zero out the contents of this seed.
+     */
     override fun destroy() {
         value.fill(0x00)
     }

@@ -32,18 +32,20 @@ class TestWallet {
         vectors.map { runFromSeedTest(seed, it) }
     }
 
+    @Suppress("UNUSED_VARIABLE")
     private fun runBip32Test(seed: DeterministicSeed, walletData: WalletData) {
         val encodedKey = seed.toRootKey().childKey(walletData.path).serialize().base58EncodeChecked()
         val childKey: Account = Account.fromBip32("cosmos", encodedKey)
         val sig = childKey.sign("test".toByteArray().sha256())
-        assertEquals(childKey.address, walletData.address)
+        assertEquals(childKey.address.toString(), walletData.address)
     }
 
+    @Suppress("UNUSED_VARIABLE")
     private fun runFromSeedTest(seed: DeterministicSeed, walletData: WalletData) {
         val wallet = Wallet.fromSeed("cosmos", seed)
         val childKey = wallet[walletData.path]
         val sig = childKey.sign("test".toByteArray().sha256())
-        assertEquals(childKey.address, walletData.address)
+        assertEquals(childKey.address.toString(), walletData.address)
     }
 
     private fun runBIP32AsyncTestVectors(vectors: List<Tv>) {

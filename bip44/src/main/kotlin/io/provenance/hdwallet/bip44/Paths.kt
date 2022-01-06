@@ -1,6 +1,12 @@
 package io.provenance.hdwallet.bip44
 
 object PathElements {
+    /**
+     * Given a BIP-32 style path like "m/44'/1'/0'/420'", generate a list of [PathElement] represented the parsed path.
+     *
+     * @param path The BIP-32 style derivation path to parse.
+     * @return The parsed path as a list of [PathElement] instances.
+     */
     fun from(path: String): List<PathElement> {
         val s = path.split("/")
         if (s.isEmpty()) {
@@ -47,7 +53,7 @@ fun String.parseBIP44Path(): List<PathElement> {
         val l = it.takeWhile { c -> c.isDigit() }
         val n = l.toInt()
         val r = it.substring(l.length, it.length)
-        val hard = r == "\'" || r.toLowerCase() == "h"
+        val hard = r == "\'" || r.lowercase() == "h"
         require(r.isEmpty() || hard) { "Invalid hardening: $r" }
         PathElement(n, hard)
     }

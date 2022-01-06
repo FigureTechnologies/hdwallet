@@ -4,15 +4,14 @@ import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip44.BIP44_HARDENING_FLAG
 import io.provenance.hdwallet.bip44.parseBIP44Path
 import io.provenance.hdwallet.common.hashing.sha256hash160
-import io.provenance.hdwallet.ec.CURVE
+import io.provenance.hdwallet.ec.DEFAULT_CURVE
 import io.provenance.hdwallet.ec.Curve
 import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.ec.PrivateKey
 import io.provenance.hdwallet.ec.PublicKey
 import io.provenance.hdwallet.ec.decompressPublicKey
-import io.provenance.hdwallet.ec.toBigInteger
-import io.provenance.hdwallet.ec.toBytesPadded
-import io.provenance.hdwallet.ec.toECKeyPair
+import io.provenance.hdwallet.ec.extensions.toBigInteger
+import io.provenance.hdwallet.ec.extensions.toBytesPadded
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -158,7 +157,7 @@ data class ExtKey(
     }
 
     companion object {
-        fun deserialize(bip32: ByteArray, curve: Curve = CURVE): ExtKey {
+        fun deserialize(bip32: ByteArray, curve: Curve = DEFAULT_CURVE): ExtKey {
             val bb = ByteBuffer.wrap(bip32)
             val ver = bb.getByteArray(4)
             val depth = bb.get()
@@ -200,7 +199,7 @@ data class ExtKey(
 }
 
 // https://en.bitcoin.it/wiki/BIP_0032
-fun DeterministicSeed.toRootKey(publicKeyOnly: Boolean = false, testnet: Boolean = false, curve: Curve = CURVE): ExtKey {
+fun DeterministicSeed.toRootKey(publicKeyOnly: Boolean = false, testnet: Boolean = false, curve: Curve = DEFAULT_CURVE): ExtKey {
     val i = hmacSha512(BITCOIN_SEED, value)
     val il = i.copyOfRange(0, PRIVATE_KEY_SIZE)
     val ir = i.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)

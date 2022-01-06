@@ -30,7 +30,7 @@ open class TestBIP39 {
 
     private fun getTestVectors(lang: String): List<TV> {
         val json = javaClass
-            .getResourceAsStream("/bip39_vectors_${lang.toLowerCase()}.json")!!
+            .getResourceAsStream("/bip39_vectors_${lang.lowercase()}.json")!!
             .readAllBytes()
             .toString(Charsets.UTF_8)
             .asTree()
@@ -40,7 +40,7 @@ open class TestBIP39 {
 
     private fun getWordList(lang: String): WordList {
         return javaClass
-            .getResourceAsStream("/wordlist_${lang.toLowerCase()}.txt")!!
+            .getResourceAsStream("/wordlist_${lang.lowercase()}.txt")!!
             .readAllBytes()
             .toString(Charsets.UTF_8)
             .split("\n")

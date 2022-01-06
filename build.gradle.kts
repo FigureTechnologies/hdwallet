@@ -36,7 +36,6 @@ val projectVersion = project.property("version")?.takeIf { it != "unspecified" }
 group = projectGroup
 version = projectVersion
 
-
 subprojects {
     group = projectGroup
     version = projectVersion
@@ -48,6 +47,11 @@ subprojects {
         plugin("java-library")
         plugin("jacoco")
         plugin("signing")
+    }
+
+    jacoco {
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-44757
+        toolVersion = "0.8.7"
     }
 
     project.ext.properties["kotlin_version"] = Versions.kotlin

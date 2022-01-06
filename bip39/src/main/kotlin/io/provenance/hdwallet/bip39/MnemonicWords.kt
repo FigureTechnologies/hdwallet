@@ -28,7 +28,7 @@ class MnemonicWords(val words: List<CharArray>) {
     }
 
     // Assuming UTF8
-    private fun CharArray.toByteArray(): ByteArray = map { (it.toInt() and 0xFF).toByte() }.toByteArray()
+    private fun CharArray.toByteArray(): ByteArray = map { (it.code and 0xFF).toByte() }.toByteArray()
 
     private fun CharArray.normalizeNKFD(): CharArray {
         val dest = CharArrayBuffer()

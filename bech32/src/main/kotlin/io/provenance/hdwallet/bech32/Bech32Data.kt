@@ -39,18 +39,18 @@ class Bech32Data(val hrp: String, fiveBitData: ByteArray) {
     /**
      * The encapsulated data as typical 8bit bytes.
      */
-    val data = Bech32.convertBits(fiveBitData, 5, 8, false)
+    val data: ByteArray = Bech32.convertBits(fiveBitData, 5, 8, false)
 
     /**
      * Checksum for encapsulated data + hrp
      */
-    val checksum = Bech32.checksum(hrp, fiveBitData)
+    val checksum: ByteArray = Bech32.checksum(hrp, fiveBitData)
 
     /**
      * Address is the Bech32 encoded value of the data prefixed with the human readable portion and
      * protected by an appended checksum.
      */
-    val address = Bech32.encode(hrp, fiveBitData)
+    val address: Address = Address(Bech32.encode(hrp, fiveBitData))
 
     /**
      * The Bech32 Address toString prints state information for debugging purposes.

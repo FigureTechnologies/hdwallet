@@ -1,10 +1,9 @@
 package io.provenance.hdwallet.wallet
 
-import io.provenance.hdwallet.bech32.toBech32
+import io.provenance.hdwallet.bech32.Address
 import io.provenance.hdwallet.bip32.AccountType.ROOT
 import io.provenance.hdwallet.bip32.ExtKey
 import io.provenance.hdwallet.bip44.PathElement
-import io.provenance.hdwallet.common.hashing.sha256hash160
 import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.encoding.base58.base58EncodeChecked
 import io.provenance.hdwallet.signer.BCECSigner
@@ -25,8 +24,8 @@ class DefaultAccount(
     private val key: ExtKey,
     private val signer: Signer = BCECSigner()
 ) : Account {
-    override val address: String =
-        key.keyPair.publicKey.compressed().sha256hash160().toBech32(hrp).address
+
+    override val address: Address = key.keyPair.publicKey.address(hrp)
 
     override fun serializeExtKey(publicOnly: Boolean): String =
         key.serialize(publicOnly).base58EncodeChecked()
