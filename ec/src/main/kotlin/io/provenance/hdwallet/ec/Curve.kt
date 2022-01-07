@@ -13,6 +13,9 @@ import java.security.spec.ECParameterSpec
 import org.bouncycastle.jce.spec.ECParameterSpec as BCECParameterSpec
 import java.security.spec.EllipticCurve
 
+/**
+ * Defines an elliptic curve point.
+ */
 class CurvePoint(val ecPoint: ECPoint) {
     val x: BigInteger = ecPoint.xCoord.toBigInteger()
     val y: BigInteger = ecPoint.yCoord.toBigInteger()
@@ -30,6 +33,13 @@ class CurvePoint(val ecPoint: ECPoint) {
         EC5Util.convertPoint(curve, toJavaECPoint())
 }
 
+/**
+ * Defines an elliptic curve.
+ *
+ * @property n
+ * @property g
+ * @property ecCurve
+ */
 data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCurve) {
     val ecDomainParameters: ECDomainParameters = ECDomainParameters(ecCurve, g.ecPoint, n)
 
@@ -61,10 +71,13 @@ data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCu
 }
 
 val secp256k1Curve = Curve.lookup("secp256k1")
+
 val secp256r1Curve = Curve.lookup("secp256r1")
 
-// Provenance defaults to the secp256k1 EC curve for keys and signatures.
-val CURVE = secp256k1Curve
+/**
+ * Provenance defaults to the secp256k1 EC curve for keys and signatures.
+ */
+val DEFAULT_CURVE = secp256k1Curve
 
 val Curve.ecParameterSpec: ECParameterSpec
     get() = ECParameterSpec(toJavaEllipticCurve(), g.toJavaECPoint(), n, ecDomainParameters.h.toInt())

@@ -1,5 +1,6 @@
 package io.provenance.hdwallet.wallet
 
+import io.provenance.hdwallet.bech32.Address
 import io.provenance.hdwallet.bip32.ExtKey
 import io.provenance.hdwallet.bip32.toRootKey
 import io.provenance.hdwallet.bip39.DeterministicSeed
@@ -7,7 +8,7 @@ import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.hdwallet.bip44.PathElement
 import io.provenance.hdwallet.bip44.PathElements
 import io.provenance.hdwallet.common.hashing.sha256
-import io.provenance.hdwallet.ec.CURVE
+import io.provenance.hdwallet.ec.DEFAULT_CURVE
 import io.provenance.hdwallet.ec.Curve
 import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.encoding.base58.base58DecodeChecked
@@ -35,7 +36,7 @@ interface Wallet {
             seed: DeterministicSeed,
             publicKeyOnly: Boolean = false,
             testnet: Boolean = false,
-            curve: Curve = CURVE,
+            curve: Curve = DEFAULT_CURVE,
         ): Wallet = DefaultWallet(
             hrp = hrp,
             key = seed.toRootKey(publicKeyOnly = publicKeyOnly, testnet = testnet, curve = curve)
@@ -67,7 +68,7 @@ interface Wallet {
             mnemonicWords: MnemonicWords,
             publicKeyOnly: Boolean = false,
             testnet: Boolean = false,
-            curve: Curve = CURVE,
+            curve: Curve = DEFAULT_CURVE,
         ): Wallet = fromSeed(
             hrp = hrp,
             seed = mnemonicWords.toSeed(passphrase),
@@ -102,7 +103,7 @@ interface Wallet {
             mnemonicWords: MnemonicWords,
             publicKeyOnly: Boolean = false,
             testnet: Boolean = false,
-            curve: Curve = CURVE,
+            curve: Curve = DEFAULT_CURVE,
         ): Wallet = fromMnemonic(
             hrp = hrp,
             passphrase = passphrase.toCharArray(),
@@ -121,7 +122,7 @@ interface Account {
     /**
      * Bech32 encoded address for this account's extended key.
      */
-    val address: String
+    val address: Address
 
     /**
      * Elliptic curve keypair for this account.

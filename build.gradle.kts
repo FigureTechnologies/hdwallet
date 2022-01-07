@@ -36,7 +36,6 @@ val projectVersion = project.property("version")?.takeIf { it != "unspecified" }
 group = projectGroup
 version = projectVersion
 
-
 subprojects {
     group = projectGroup
     version = projectVersion
@@ -48,6 +47,11 @@ subprojects {
         plugin("java-library")
         plugin("jacoco")
         plugin("signing")
+    }
+
+    jacoco {
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-44757
+        toolVersion = "0.8.7"
     }
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
@@ -73,16 +77,19 @@ subprojects {
     }
 
     dependencies {
-        listOf(
-            Deps.bouncycastle,
-            Deps.kotlinStdLibJdk8, Deps.kotlinStdLib, Deps.kotlinReflect
-        ).map(::implementation)
+        implementation(platform("org.jetbrains.kotlin:kotlin-bom:${Versions.kotlin}"))
+        implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+        implementation("org.jetbrains.kotlin", "kotlin-stdlib")
+        implementation("org.jetbrains.kotlin", "kotlin-reflect")
 
-        listOf(
-            Deps.junitJupiterApi,
-            Deps.junitJupiterEngine,
-            Deps.coroutines
-        ).map(::testImplementation)
+        implementation("commons-codec", "commons-codec", Versions.commonsCodec)
+        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", Versions.jackson)
+
+        implementation("org.bouncycastle", "bcprov-jdk15on", Versions.bouncyCastle)
+
+        testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.coroutines)
+        testImplementation("org.junit.jupiter", "junit-jupiter-api", Versions.junit)
+        testImplementation("org.junit.jupiter", "junit-jupiter-engine", Versions.junit)
     }
 
     tasks {

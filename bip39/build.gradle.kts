@@ -1,6 +1,5 @@
 dependencies {
     implementation(project(":common"))
-
-    listOf(Deps.jacksonKotlin, Deps.commonsCodec)
-        .map(::testImplementation)
+    testImplementation("commons-codec", "commons-codec", Versions.commonsCodec)
+    testImplementation("com.fasterxml.jackson.module", "jackson-module-kotlin", Versions.jackson)
 }

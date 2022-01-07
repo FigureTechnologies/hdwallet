@@ -1,10 +1,10 @@
 package io.provenance.hdwallet.signer
 
-import io.provenance.hdwallet.ec.CURVE
+import io.provenance.hdwallet.ec.DEFAULT_CURVE
 import io.provenance.hdwallet.ec.Curve
 import java.math.BigInteger
 
-data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve = CURVE) {
+data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve = DEFAULT_CURVE) {
     private val halfCurveOrder = curve.n.shiftRight(1)
 
     companion object {
@@ -12,7 +12,7 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
          * decodeAsBTC returns an ECDSASignature where the 64 byte array is divided
          * into r || s with each being a 32 byte big endian integer.
          */
-        fun decodeAsBTC(bytes: ByteArray, curveParams: Curve = CURVE): ECDSASignature {
+        fun decodeAsBTC(bytes: ByteArray, curveParams: Curve = DEFAULT_CURVE): ECDSASignature {
             val halfCurveOrder = curveParams.n.shiftRight(1)
 
             require(bytes.size == 64) { "malformed BTC encoded signature, expected 64 bytes" }
