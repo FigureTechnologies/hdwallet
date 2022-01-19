@@ -1,5 +1,6 @@
 package io.provenance.hdwallet.ec.extensions
 
+import io.provenance.hdwallet.ec.ECKeyPair
 import io.provenance.hdwallet.ec.PrivateKey
 import io.provenance.hdwallet.ec.PublicKey
 import io.provenance.hdwallet.ec.bcecParameterSpec
@@ -11,6 +12,7 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider
+import java.security.KeyPair as JavaKeyPair
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
 import java.security.interfaces.ECPrivateKey as JavaECPrivateKey
@@ -26,7 +28,7 @@ fun JavaECPublicKey.toBCECPublicKey(): BCECPublicKey = BCECPublicKey(this, Bounc
 /**
  * Convert a Sun Security Provider [JavaPublicKey] to a Bouncy Castle elliptic curve (EC) public key, [BCECPublicKey].
  *
- * @return [BCECPublicKey] if the underlying key is a subclass of [ECPublicKey], or null if otherwise.
+ * @return [BCECPublicKey] if the underlying key is a subclass of [BCECPublicKey], or null if otherwise.
  */
 fun JavaPublicKey.toBCECPublicKey(): BCECPublicKey? =
     when (this) {
@@ -93,3 +95,31 @@ fun JavaPrivateKey.toECPrivateKey(): PrivateKey {
     val bcec = requireNotNull(toBCECPrivateKey()) { "key type invalid: not EC" }
     return PrivateKey(bcec.d, bcec.parameters.toCurve())
 }
+
+/**
+ * Convert a hdwallet elliptic curve keypair into a [JavaKeyPair].
+ *
+ * @return The converted Java [JavaKeyPair].
+ */
+fun ECKeyPair.toJavaECKeyPair(): JavaKeyPair = JavaKeyPair(publicKey.toJavaECPublicKey(), privateKey.toJavaECPrivateKey())
+
+/**
+ * Convert a Java [JavaKeyPair] into an hdwallet [ECKeyPair].
+ *
+ * @return The converted hdwallet [ECKeyPair].
+ */
+fun JavaKeyPair.toECKeyPair(): ECKeyPair = ECKeyPair(private.toECPrivateKey(), public.toECPublicKey())
+
+/**
+ * Convert a [Pair<JavaPublicKey, JavaPrivateKey>] to a [JavaKeyPair].
+ *
+ * @return [JavaKeyPair]
+ */
+fun Pair<JavaPublicKey, JavaPrivateKey>.toKeyPair(): JavaKeyPair = JavaKeyPair(first, second)
+
+/**
+ * Convert a [JavaKeyPair] to a [Pair] of <[JavaPublicKey], [JavaPrivateKey]>.
+ *
+ * @return A [Pair] of public, private keys.
+ */
+fun JavaKeyPair.toPair(): Pair<JavaPublicKey, JavaPrivateKey> = Pair(public, private)

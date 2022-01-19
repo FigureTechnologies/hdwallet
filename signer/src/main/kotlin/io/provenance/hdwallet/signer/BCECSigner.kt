@@ -2,6 +2,7 @@ package io.provenance.hdwallet.signer
 
 import io.provenance.hdwallet.ec.PrivateKey
 import io.provenance.hdwallet.ec.PublicKey
+import java.math.BigInteger
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters
 import org.bouncycastle.crypto.params.ECPublicKeyParameters
@@ -19,7 +20,7 @@ open class BCECSigner : SignAndVerify {
 
     override fun sign(privateKey: PrivateKey, payload: ByteArray): ECDSASignature {
         val params = ECPrivateKeyParameters(privateKey.key, privateKey.curve.ecDomainParameters)
-        val (r, s) = signer {
+        val (r: BigInteger, s: BigInteger) = signer {
             init(true, params)
             generateSignature(payload)
         }
