@@ -63,7 +63,7 @@ data class ExtKey(
     val chainCode: ExtKeyChainCode,
     val keyPair: ECKeyPair
 ) {
-    private val curve = keyPair.privateKey.curve
+    private val curve: Curve = keyPair.privateKey.curve
 
     fun serialize(publicKeyOnly: Boolean = false): ByteArray {
         if (!publicKeyOnly && !(versionBytes.bytes.contentEquals(xprv)) && !(versionBytes.bytes contentEquals tprv))

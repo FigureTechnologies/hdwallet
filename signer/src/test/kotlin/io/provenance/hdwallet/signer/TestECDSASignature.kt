@@ -3,14 +3,30 @@ package io.provenance.hdwallet.signer
 import io.provenance.hdwallet.bip32.ExtKey
 import io.provenance.hdwallet.bip32.toRootKey
 import io.provenance.hdwallet.bip39.MnemonicWords
+import io.provenance.hdwallet.common.bc.registerBouncyCastle
 import io.provenance.hdwallet.common.hashing.sha256
+import io.provenance.hdwallet.ec.extensions.toECPrivateKey
+import io.provenance.hdwallet.ec.extensions.toECPublicKey
 import io.provenance.hdwallet.ec.secp256k1Curve
 import io.provenance.hdwallet.ec.secp256r1Curve
 import io.provenance.hdwallet.encoding.base16.base16Decode
 import io.provenance.hdwallet.encoding.base16.base16Encode
 import java.math.BigInteger
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.SecureRandom
+import java.security.Signature
+import java.security.SignatureException
+import java.util.Arrays
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 object paths {
     val testnet = "m/44'/1'/0'/0/0'"
@@ -25,7 +41,8 @@ val mnemonic = MnemonicWords.of(
     "defense legal stem absorb hurdle physical prosper review process primary exist camera"
 )
 val seed = mnemonic.toSeed("".toCharArray())
-val payloadHash = "test".toByteArray().sha256()
+val payload = "test".toByteArray()
+val payloadHash = payload.sha256()
 
 val expected = mapOf(
     secp256k1Curve to ExpectedSigs(
@@ -70,6 +87,21 @@ val expected = mapOf(
 )
 
 class TestItAll {
+    private val randomSeed: ByteArray = byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte(), 0xEF.toByte())
+    private val random = SecureRandom(randomSeed)
+
+    private fun createECKeyPair(keySize: Int = 256): Pair<PublicKey, PrivateKey> {
+        val keyGen = KeyPairGenerator.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
+        keyGen.initialize(keySize, random)
+        val pair: KeyPair = keyGen.generateKeyPair()
+        return Pair(pair.public, pair.private)
+    }
+
+    @BeforeEach
+    fun setup() {
+        registerBouncyCastle()
+    }
+
     @Test
     fun testRun() {
         data class Keys(val root: ExtKey) {
@@ -96,25 +128,97 @@ class TestItAll {
 
                 assertEquals(ekp.expectedRoot.r, rootSig.r, "${test.javaClass.simpleName} $name root r")
                 assertEquals(ekp.expectedRoot.s, rootSig.s, "${test.javaClass.simpleName} $name root s")
-                assertEquals(ekp.expectedRoot.btc.base16Encode(), rootSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name root btc")
-                assertEquals(true, signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig), "${test.javaClass.simpleName} $name root verify")
+                assertEquals(
+                    ekp.expectedRoot.btc.base16Encode(),
+                    rootSig.encodeAsBTC().base16Encode(),
+                    "${test.javaClass.simpleName} $name root btc"
+                )
+                assertEquals(
+                    true,
+                    signer.verify(keys.root.keyPair.publicKey, payloadHash, rootSig),
+                    "${test.javaClass.simpleName} $name root verify"
+                )
 
                 assertEquals(ekp.expectedTestnet.r, testnetSig.r, "${test.javaClass.simpleName} $name test r")
                 assertEquals(ekp.expectedTestnet.s, testnetSig.s, "${test.javaClass.simpleName} $name test s")
-                assertEquals(ekp.expectedTestnet.btc.base16Encode(), testnetSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name test btc")
-                assertEquals(true, signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig), "${test.javaClass.simpleName} $name test verify")
+                assertEquals(
+                    ekp.expectedTestnet.btc.base16Encode(),
+                    testnetSig.encodeAsBTC().base16Encode(),
+                    "${test.javaClass.simpleName} $name test btc"
+                )
+                assertEquals(
+                    true,
+                    signer.verify(keys.testnet.keyPair.publicKey, payloadHash, testnetSig),
+                    "${test.javaClass.simpleName} $name test verify"
+                )
 
-                assertEquals(ekp.expectedMainnet.r, mainnetSig.r, "${test.javaClass.simpleName} $name main r",)
-                assertEquals(ekp.expectedMainnet.s, mainnetSig.s, "${test.javaClass.simpleName} $name main s",)
-                assertEquals(ekp.expectedMainnet.btc.base16Encode(), mainnetSig.encodeAsBTC().base16Encode(), "${test.javaClass.simpleName} $name main btc",)
-                assertEquals(true, signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig), "${test.javaClass.simpleName} $name main verify")
+                assertEquals(ekp.expectedMainnet.r, mainnetSig.r, "${test.javaClass.simpleName} $name main r")
+                assertEquals(ekp.expectedMainnet.s, mainnetSig.s, "${test.javaClass.simpleName} $name main s")
+                assertEquals(
+                    ekp.expectedMainnet.btc.base16Encode(),
+                    mainnetSig.encodeAsBTC().base16Encode(),
+                    "${test.javaClass.simpleName} $name main btc",
+                )
+                assertEquals(
+                    true,
+                    signer.verify(keys.mainnet.keyPair.publicKey, payloadHash, mainnetSig),
+                    "${test.javaClass.simpleName} $name main verify"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testSignatureEncoding() {
+        val keyPair = createECKeyPair()
+        val publicKey = keyPair.first
+        val privateKey = keyPair.second
+
+        // We need to use ECDDSA (deterministic ECDSA) (only provided by Bouncy Castle)
+        fun createSignature(): Signature = Signature.getInstance("SHA256withECDDSA")
+
+        val signatureBytesGoodFormat: ByteArray = BCECSigner().run {
+            sign(privateKey.toECPrivateKey(), payloadHash).encodeAsASN1DER()
+        }
+
+        val signatureBytesBadFormat: ByteArray = BCECSigner().run {
+            sign(privateKey.toECPrivateKey(), payloadHash).encodeAsBTC()
+        }
+
+        // BTC encoding should fail:
+        assertThrows<SignatureException> {
+            createSignature().run {
+                initVerify(publicKey)
+                update(payload)
+                verify(signatureBytesBadFormat)
             }
         }
 
+        // DER encoding should succeed:
+        assert(createSignature().run {
+            initVerify(publicKey)
+            update(payload)
+            verify(signatureBytesGoodFormat)
+        })
+
+        // Generate signature bytes from Java security's Signature API:
+        val javaSignBytes = createSignature().run {
+            initSign(privateKey)
+            update(payload)
+            sign()
+        }
+
+        // If deterministic ECDSA is used, `javaSignBytes` and `signatureBytesGoodFormat` should be equal:
+        assertTrue(Arrays.equals(javaSignBytes, signatureBytesGoodFormat))
     }
 }
 
-data class ExpectedSigs(val expectedRoot: ExpectedSig, val expectedTestnet: ExpectedSig, val expectedMainnet: ExpectedSig)
+data class ExpectedSigs(
+    val expectedRoot: ExpectedSig,
+    val expectedTestnet: ExpectedSig,
+    val expectedMainnet: ExpectedSig
+)
+
 data class ExpectedSig(val r: BigInteger, val s: BigInteger, val btc: ByteArray)
 
 class TestBCECDSASignature : TestECDSASignature {

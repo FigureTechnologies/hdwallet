@@ -4,7 +4,6 @@ import io.provenance.hdwallet.ec.Curve
 import io.provenance.hdwallet.ec.CurvePoint
 import java.math.BigInteger
 import java.security.KeyFactory
-import java.security.interfaces.ECPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import org.bouncycastle.asn1.x9.X9ECParameters
@@ -15,6 +14,7 @@ import org.bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.math.ec.ECPoint
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
+import java.security.interfaces.ECPublicKey as JavaECPublicKey
 
 fun X9ECParameters.toCurve(): Curve = Curve(n, g.toCurvePoint(), curve)
 

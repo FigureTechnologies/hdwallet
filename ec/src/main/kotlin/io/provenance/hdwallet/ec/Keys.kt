@@ -58,4 +58,6 @@ class PublicKey(val key: BigInteger, val curve: Curve) {
  * @property privateKey The private key.
  * @property publicKey The public key.
  */
-data class ECKeyPair(val privateKey: PrivateKey, val publicKey: PublicKey)
+data class ECKeyPair(val privateKey: PrivateKey, val publicKey: PublicKey) {
+    fun toPair(): Pair<PrivateKey, PublicKey> = Pair(privateKey, publicKey)
+}

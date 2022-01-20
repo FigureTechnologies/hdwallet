@@ -2,9 +2,14 @@ package io.provenance.hdwallet.signer
 
 import io.provenance.hdwallet.ec.DEFAULT_CURVE
 import io.provenance.hdwallet.ec.Curve
+import java.io.ByteArrayOutputStream
 import java.math.BigInteger
+import java.security.Signature as JavaSignature
+import org.bouncycastle.asn1.ASN1Integer
+import org.bouncycastle.asn1.DERSequenceGenerator
 
 data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve = DEFAULT_CURVE) {
+
     private val halfCurveOrder = curve.n.shiftRight(1)
 
     companion object {
@@ -30,13 +35,14 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
     }
 
     /**
-     * encodeAsBTC returns the ECDSA signature as a ByteArray of r || s,
-     * where both r and s are encoded into 32 byte big endian integers.
+     * [encodeAsBTC] returns the ECDSA signature as a ByteArray of `r || s`,
+     * where both `r` and `s` are encoded into 32 byte big endian integers.
      */
     fun encodeAsBTC(): ByteArray {
-
         /**
          * Returns the bytes from a BigInteger as an unsigned version by truncating a byte if needed.
+         *
+         * @return `r || s` encoded as an array of bytes.
          */
         fun BigInteger.getUnsignedBytes(): ByteArray {
             val bytes = this.toByteArray()
@@ -65,4 +71,35 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
         System.arraycopy(sBytes, 0, signature, 64 - sBytes.size, sBytes.size)
         return signature
     }
+
+    /**
+     * Encodes the `(r,s)` pair as an ASN.1 DER byte array, suitable for use with the Java [JavaSignature] API
+     * for signature verification.
+     *
+     * Example:
+     *
+     * ```
+     * val privateKey: PrivateKey = ...
+     * val payload: ByteArray = ... // raw array of bytes
+     * val payloadHash: ByteArray = payloadHash.sha256()
+     * val signature: EDCSASignature = BCECSigner().sign(privateKey, payloadHash)
+     * val ok: Boolean = Signature.getInstance("SHA256withECDSA").apply {
+     *     initVerify(publicKey)
+     *     update(payload)
+     *     s.verify(signature.encodeAsASN1DER())
+     * }
+     * assert(ok)
+     * ```
+     *
+     * @return `(r,s)` pair encoded as a ASN.1 DER array of bytes.
+     */
+    fun encodeAsASN1DER(): ByteArray =
+        ByteArrayOutputStream().use {
+            DERSequenceGenerator(it).apply {
+                addObject(ASN1Integer(r.toByteArray()))
+                addObject(ASN1Integer(s.toByteArray()))
+                close()
+            }
+            it.toByteArray()
+        }
 }
