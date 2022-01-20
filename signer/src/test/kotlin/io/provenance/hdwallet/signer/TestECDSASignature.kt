@@ -19,9 +19,11 @@ import java.security.PublicKey
 import java.security.SecureRandom
 import java.security.Signature
 import java.security.SignatureException
+import java.util.Arrays
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -172,8 +174,8 @@ class TestItAll {
         val publicKey = keyPair.first
         val privateKey = keyPair.second
 
-        fun JCESignature(): Signature = Signature.getInstance("SHA256withECDSA")
-        fun BCSignature(): Signature = Signature.getInstance("SHA256withECDSA", BouncyCastleProvider.PROVIDER_NAME)
+        // We need to use ECDDSA (deterministic ECDSA) (only provided by Bouncy Castle)
+        fun createSignature(): Signature = Signature.getInstance("SHA256withECDDSA")
 
         val signatureBytesGoodFormat: ByteArray = BCECSigner().run {
             sign(privateKey.toECPrivateKey(), payloadHash).encodeAsASN1DER()
@@ -183,36 +185,31 @@ class TestItAll {
             sign(privateKey.toECPrivateKey(), payloadHash).encodeAsBTC()
         }
 
-        // Providers should be different:
-        assert(JCESignature().provider.info != BCSignature().provider.info)
-
-        // BTC encoding should fail on both:
+        // BTC encoding should fail:
         assertThrows<SignatureException> {
-            JCESignature().run {
-                initVerify(publicKey)
-                update(payload)
-                verify(signatureBytesBadFormat)
-            }
-        }
-        assertThrows<SignatureException> {
-            BCSignature().run {
+            createSignature().run {
                 initVerify(publicKey)
                 update(payload)
                 verify(signatureBytesBadFormat)
             }
         }
 
-        // DER encoding should succeed for both:
-        assert(JCESignature().run {
+        // DER encoding should succeed:
+        assert(createSignature().run {
             initVerify(publicKey)
             update(payload)
             verify(signatureBytesGoodFormat)
         })
-        assert(BCSignature().run {
-            initVerify(publicKey)
+
+        // Generate signature bytes from Java security's Signature API:
+        val javaSignBytes = createSignature().run {
+            initSign(privateKey)
             update(payload)
-            verify(signatureBytesGoodFormat)
-        })
+            sign()
+        }
+
+        // If deterministic ECDSA is used, `javaSignBytes` and `signatureBytesGoodFormat` should be equal:
+        assertTrue(Arrays.equals(javaSignBytes, signatureBytesGoodFormat))
     }
 }
 
