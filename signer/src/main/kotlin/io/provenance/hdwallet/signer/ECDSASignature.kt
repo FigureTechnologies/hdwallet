@@ -14,30 +14,6 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
 
     companion object {
         /**
-         * Returns an [ECDSASignature] where the 64 byte array is divided into `r || s` with each being a 32 byte
-         * big endian integer.
-         *
-         * @param bytes The byte array to interpret as a BTC-encoded signature.
-         * @param curveParams The EC curve to use when performing the decoding.
-         * @return The decoded ECDSA signature, [ECDSASignature].
-         */
-        private fun decodeAsBTC(bytes: ByteArray, curveParams: Curve = DEFAULT_CURVE): ECDSASignature {
-            val halfCurveOrder = curveParams.n.shiftRight(1)
-
-            require(bytes.size == 64) { "malformed BTC encoded signature, expected 64 bytes" }
-
-            val ecdsa = ECDSASignature(
-                BigInteger(1, bytes.dropLast(32).toByteArray()),
-                BigInteger(1, bytes.takeLast(32).toByteArray())
-            )
-
-            require(ecdsa.r < curveParams.n) { "signature R must be less than curve.N" }
-            require(ecdsa.s <= halfCurveOrder) { "signature S must be less than (curve.N / 2)" }
-
-            return ecdsa
-        }
-
-        /**
          * Decode the given BTC-encoded signature as a ECDSA signature.
          *
          * @param signature The BTC-encoded signature.
@@ -45,7 +21,9 @@ data class ECDSASignature(val r: BigInteger, val s: BigInteger, val curve: Curve
          * @return The decoded ECDSA signature, [ECDSASignature].
          */
         fun decode(signature: BTCSignature, curveParams: Curve = DEFAULT_CURVE): ECDSASignature =
-            decodeAsBTC(bytes = signature.toByteArray(), curveParams = curveParams)
+            BTC.decode(bytes = signature.toByteArray(), curveParams = curveParams).run {
+                ECDSASignature(r, s, curveParams)
+            }
 
         /**
          * Decode the given ASN.1-encoded signature as a ECDSA signature.

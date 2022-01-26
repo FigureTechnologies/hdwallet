@@ -1,6 +1,7 @@
 package io.provenance.hdwallet.signer
 
 import io.provenance.hdwallet.ec.Curve
+import io.provenance.hdwallet.ec.DEFAULT_CURVE
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import org.bouncycastle.asn1.ASN1InputStream
@@ -11,29 +12,28 @@ import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.DERSequenceGenerator
 
 @JvmInline
-value class BTCSignature private constructor(private val value: ByteArray) {
+value class BTCSignature private constructor(private val signatureBytes: ByteArray) {
     companion object {
         fun fromByteArray(bytes: ByteArray): BTCSignature = BTCSignature(bytes)
     }
 
-    fun toByteArray(): ByteArray = value
+    fun toByteArray(): ByteArray = signatureBytes
+    fun toIntegerPair(curve: Curve = DEFAULT_CURVE): BigIntegerPair =
+        BTC.decode(bytes = signatureBytes, curveParams = curve)
 }
 
 @JvmInline
-value class ASN1Signature private constructor(private val value: ByteArray) {
+value class ASN1Signature private constructor(private val signatureBytes: ByteArray) {
     companion object {
         fun fromByteArray(bytes: ByteArray): ASN1Signature = ASN1Signature(bytes)
     }
 
-    fun toByteArray(): ByteArray = value
+    fun toByteArray(): ByteArray = signatureBytes
     fun toIntegerPair(): BigIntegerPair = ASN1.decode(this)
 }
 
-@JvmInline
-value class BigIntegerPair(private val intPair: Pair<BigInteger, BigInteger>) {
-    val r get(): BigInteger = intPair.first
-    val s get(): BigInteger = intPair.second
-    fun asPair(): Pair<BigInteger, BigInteger> = intPair
+data class BigIntegerPair(val r: BigInteger, val s: BigInteger) {
+    fun asPair(): Pair<BigInteger, BigInteger> = Pair(r, s)
 }
 
 /**
@@ -41,8 +41,8 @@ value class BigIntegerPair(private val intPair: Pair<BigInteger, BigInteger>) {
  */
 object BTC {
     /**
-     * [encode] returns the ECDSA signature as a ByteArray of `r || s`, * where both `r` and `s` are encoded into 32
-     * byte big endian integers.
+     * Returns the ECDSA signature as a ByteArray of `r || s`, * where both `r` and `s` are encoded into
+     * 32 byte big endian integers.
      */
     fun encode(r: BigInteger, s: BigInteger, curve: Curve): BTCSignature {
 
@@ -69,10 +69,10 @@ object BTC {
         }
 
         val sBytes = sigS.getUnsignedBytes()
-        val rBytes = r.getUnsignedBytes()
-
-        require(rBytes.size <= 32) { "cannot encode r into BTC Format, size overflow (${rBytes.size} > 32)" }
         require(sBytes.size <= 32) { "cannot encode s into BTC Format, size overflow (${sBytes.size} > 32)" }
+
+        val rBytes = r.getUnsignedBytes()
+        require(rBytes.size <= 32) { "cannot encode r into BTC Format, size overflow (${rBytes.size} > 32)" }
 
         val signature = ByteArray(64)
         // 0 pad the byte arrays from the left if they aren't big enough.
@@ -80,6 +80,27 @@ object BTC {
         System.arraycopy(sBytes, 0, signature, 64 - sBytes.size, sBytes.size)
 
         return BTCSignature.fromByteArray(signature)
+    }
+
+    /**
+     * Returns an [ECDSASignature] where the 64 byte array is divided into `r || s` with each being a 32 byte
+     * big endian integer.
+     *
+     * @param bytes The byte array to interpret as a BTC-encoded signature.
+     * @param curveParams The EC curve to use when performing the decoding.
+     * @return The decoded ECDSA signature, [ECDSASignature].
+     */
+    fun decode(bytes: ByteArray, curveParams: Curve = DEFAULT_CURVE): BigIntegerPair {
+        require(bytes.size == 64) { "malformed BTC encoded signature, expected 64 bytes" }
+        val halfCurveOrder = curveParams.n.shiftRight(1)
+
+        val r = BigInteger(1, bytes.dropLast(32).toByteArray())
+        require(r < curveParams.n) { "signature R must be less than curve.N" }
+
+        val s = BigInteger(1, bytes.takeLast(32).toByteArray())
+        require(s <= halfCurveOrder) { "signature S must be less than (curve.N / 2)" }
+
+        return BigIntegerPair(r, s)
     }
 }
 
@@ -158,7 +179,8 @@ object ASN1 {
                     }
                 }
             } while (obj != null)
-            BigIntegerPair(Pair(parts[0], parts[1]))
+
+            BigIntegerPair(parts[0], parts[1])
         }
 
     /**

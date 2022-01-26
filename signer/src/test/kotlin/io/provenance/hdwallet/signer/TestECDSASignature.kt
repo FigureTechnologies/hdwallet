@@ -242,12 +242,12 @@ class TestECDSA {
         )
 
         // Convert the ASN.1 signature to an (r, s) BigInteger pair:
-        val intPair: BigIntegerPair = asn1.toIntegerPair()
+        val (r, s) = asn1.toIntegerPair()
 
         val ecPublicKey = publicKey.toECPublicKey()
 
         // construct a new ECDSA signature directly using r and s:
-        val ecdsa1 = ECDSASignature(r = intPair.r, s = intPair.s, curve = ecPublicKey.curve)
+        val ecdsa1 = ECDSASignature(r, s, ecPublicKey.curve)
 
         // Check that the new signature verifies correctly:
         assert(
@@ -256,13 +256,15 @@ class TestECDSA {
 
         // Check that a BTC signature can be turned back into a ECDSASignature:
         val btc: BTCSignature = ecdsa1.encodeAsBTC()
+        val ecdsa2 = ECDSASignature.decode(btc)
         assert(
-            BCECSigner().verify(ecPublicKey, payloadHash, ECDSASignature.decode(btc))
+            BCECSigner().verify(ecPublicKey, payloadHash, ecdsa2)
         )
 
         // Similarly, check that we can directly decode an ASN.1 signature into an ECDSASignature:
+        val ecdsa3 = ECDSASignature.decode(asn1)
         assert(
-            BCECSigner().verify(publicKey.toECPublicKey(), payloadHash, ECDSASignature.decode(asn1))
+            BCECSigner().verify(publicKey.toECPublicKey(), payloadHash, ecdsa3)
         )
     }
 }
