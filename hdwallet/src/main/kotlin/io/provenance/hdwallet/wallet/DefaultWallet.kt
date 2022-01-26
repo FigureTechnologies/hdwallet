@@ -33,7 +33,7 @@ class DefaultAccount(
     override val keyPair: ECKeyPair = key.keyPair
 
     override fun sign(payload: ByteArray, hash: (ByteArray) -> ByteArray): ByteArray =
-        signer.sign(key.keyPair.privateKey, hash(payload)).encodeAsBTC()
+        signer.sign(key.keyPair.privateKey, hash(payload)).encodeAsBTC().toByteArray()
 
     override fun get(index: Int, hardened: Boolean): Account =
         DefaultAccount(hrp, key.childKey(index, hardened), signer)
