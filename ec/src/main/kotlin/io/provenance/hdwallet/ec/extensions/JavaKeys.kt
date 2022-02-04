@@ -5,13 +5,14 @@ import io.provenance.hdwallet.ec.PrivateKey
 import io.provenance.hdwallet.ec.PublicKey
 import io.provenance.hdwallet.ec.bcecParameterSpec
 import io.provenance.hdwallet.ec.ecParameterSpec
-import java.security.KeyFactory
-import java.security.spec.ECPublicKeySpec
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.spec.ECPublicKeySpec
 import java.security.KeyPair as JavaKeyPair
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
@@ -41,9 +42,21 @@ fun JavaPublicKey.toBCECPublicKey(): BCECPublicKey? =
  *
  * @return The converted public key, [PublicKey].
  */
-fun JavaPublicKey.toECPublicKey(compressed: Boolean = false): PublicKey {
+fun JavaPublicKey.toECPublicKey(): PublicKey {
     val bcec = requireNotNull(toBCECPublicKey()) { "key type invalid: not EC" }
-    return PublicKey(bcec.q.getEncoded(compressed).toBigInteger(), bcec.parameters.toCurve())
+    val q = bcec.q.getEncoded(false)
+    val curve = bcec.parameters.toCurve()
+    // Ethereum does not use encoded public keys like bitcoin - see
+    // https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm for details
+    // Additionally, as the first bit is a constant prefix (0x04) we ignore this value
+
+    // In Bitcoin, public keys are either compressed or uncompressed. Compressed public keys are 33 bytes,
+    // consisting of a prefix either 0x02 or 0x03, and a 256-bit integer called x.
+    // The older uncompressed keys are 65 bytes, consisting of constant prefix (0x04),
+    // followed by two 256-bit integers called x and y (2 * 32 bytes).
+    val bytes = BigInteger(1, q.copyOfRange(1, q.size))
+
+    return PublicKey(bytes, curve)
 }
 
 /**

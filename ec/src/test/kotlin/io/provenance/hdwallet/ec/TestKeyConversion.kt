@@ -11,30 +11,30 @@ import io.provenance.hdwallet.ec.extensions.toJavaECKeyPair
 import io.provenance.hdwallet.ec.extensions.toJavaECPrivateKey
 import io.provenance.hdwallet.ec.extensions.toJavaECPublicKey
 import io.provenance.hdwallet.ec.extensions.toKeyPair
-import java.math.BigInteger
-import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
+import io.provenance.hdwallet.ec.util.createECKeyPair
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.math.BigInteger
+import java.security.KeyPair
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
 
 class TestKeyConversion {
 
-    private val seed: ByteArray = byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte(), 0xEF.toByte())
-    private val random = SecureRandom(seed)
-
-    private fun createECKeyPair(keySize: Int = 256): Pair<JavaPublicKey, JavaPrivateKey> {
-        val keyGen = KeyPairGenerator.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
-        keyGen.initialize(keySize, random)
-        val pair: KeyPair = keyGen.generateKeyPair()
-        return Pair(pair.public, pair.private)
+    init {
+        registerBouncyCastle()
     }
+
+    private val fixtureJavaKeys = createECKeyPair()
+
+    private val fixturePublicKey: PublicKey =
+        PublicKey(
+            BigInteger("11017269121487925856270788060891642208257298925476974195446871359898252955554852665247892301558653002614431352541933167109765806198072387563714207974183173"),
+            DEFAULT_CURVE
+        )
 
     @BeforeEach
     fun setup() {
@@ -42,9 +42,38 @@ class TestKeyConversion {
     }
 
     @Test
+    @DisplayName("PublicKey: hdwallet -> Java -> hdwallet")
+    fun testECPublicKeyConversion() {
+        val javaPublicKey = fixturePublicKey.toJavaECPublicKey()
+        val recreatedPublicKey = javaPublicKey.toECPublicKey()
+        assert(fixturePublicKey.key == recreatedPublicKey.key)
+    }
+
+    @Test
+    @DisplayName("PublicKey: hdwallet compressed -> hdwallet decompressed")
+    fun testECPublicKeyConversionCompressed() {
+        // Check the encoding
+        val encodedDecompressedPublicKey: PublicKey = PublicKey(
+            decompressPublicKey(fixturePublicKey.compressed(), fixturePublicKey.curve, encode = true),
+            fixturePublicKey.curve
+        )
+        val encodedIntBytes: ByteArray = encodedDecompressedPublicKey.key.toByteArray()
+        assert(encodedIntBytes.size == 65)
+        assert(encodedIntBytes[0] == 0x04.toByte())
+
+        val unencodedDecompressedPublicKey = PublicKey(
+            decompressPublicKey(fixturePublicKey.compressed(), fixturePublicKey.curve),
+            fixturePublicKey.curve
+        )
+
+        // After decompression, the compressed key should equal original BigInteger key:
+        assert(unencodedDecompressedPublicKey.key == fixturePublicKey.key)
+    }
+
+    @Test
     @DisplayName("PublicKey: Java -> hdwallet -> Java")
     fun testJavaPublicKeyConversion() {
-        val (originalJavaPubKey: JavaPublicKey, _) = createECKeyPair()
+        val (originalJavaPubKey: JavaPublicKey, _) = fixtureJavaKeys
         val pubKey: PublicKey = originalJavaPubKey.toECPublicKey()
         val newJavaPubKey: JavaPublicKey = pubKey.toJavaECPublicKey()
         assert(originalJavaPubKey == newJavaPubKey)
@@ -53,7 +82,7 @@ class TestKeyConversion {
     @Test
     @DisplayName("PrivateKey : Java -> hdwallet -> Java")
     fun testJavaPrivateKeyConversion() {
-        val (_, originalJavaPrivKey: JavaPrivateKey) = createECKeyPair()
+        val (_, originalJavaPrivKey: JavaPrivateKey) = fixtureJavaKeys
         val privKey: PrivateKey = originalJavaPrivKey.toECPrivateKey()
         val newJavaPrivKey: JavaPrivateKey = privKey.toJavaECPrivateKey()
         assert(originalJavaPrivKey == newJavaPrivKey)
@@ -62,7 +91,7 @@ class TestKeyConversion {
     @Test
     @DisplayName("PublicKey :  Java -> BC -> BigInteger -> ByteArray -> hdwallet -> Java")
     fun testPublicKeyToBytesAndBack() {
-        val (originalJavaPubKey: JavaPublicKey, _) = createECKeyPair()
+        val (originalJavaPubKey: JavaPublicKey, _) = fixtureJavaKeys
         val bcecPubKey: BCECPublicKey = originalJavaPubKey.toBCECPublicKey()!!
         val (bigInt: BigInteger, curve: Curve) = bcecPubKey.toBigIntegerPair(compressed = false)
         val bytesPubKey: ByteArray = bigInt.toByteArray()
@@ -74,7 +103,7 @@ class TestKeyConversion {
     @Test
     @DisplayName("PrivateKey :  Java -> BC -> BigInteger -> ByteArray -> hdwallet -> Java")
     fun testPrivateKeyToBytesAndBack() {
-        val (_, originalJavaPrivateKey: JavaPrivateKey) = createECKeyPair()
+        val (_, originalJavaPrivateKey: JavaPrivateKey) = fixtureJavaKeys
         val bcecPrivKey: BCECPrivateKey = originalJavaPrivateKey.toBCECPrivateKey()!!
         val (bigInt: BigInteger, curve: Curve) = bcecPrivKey.toBigIntegerPair()
         val bytesPrivKey: ByteArray = bigInt.toByteArray()
@@ -86,7 +115,7 @@ class TestKeyConversion {
     @Test
     @DisplayName("Java keypair -> EC keypair -> Java keypair")
     fun testKeypairConversion() {
-        val originalJavaKeyPair: KeyPair = createECKeyPair().toKeyPair()
+        val originalJavaKeyPair: KeyPair = fixtureJavaKeys.toKeyPair()
         val ecKeyPair = originalJavaKeyPair.toECKeyPair()
         val convertedJavaKeyPair = ecKeyPair.toJavaECKeyPair()
         assert(originalJavaKeyPair.public == convertedJavaKeyPair.public)
