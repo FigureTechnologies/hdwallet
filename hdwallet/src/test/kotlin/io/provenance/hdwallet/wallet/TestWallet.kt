@@ -1,5 +1,10 @@
 package io.provenance.hdwallet.wallet
 
+import fr.xgouchet.elmyr.Forge
+import fr.xgouchet.elmyr.ForgeryFactory
+import fr.xgouchet.elmyr.annotation.Forgery
+import fr.xgouchet.elmyr.junit5.ForgeConfiguration
+import fr.xgouchet.elmyr.junit5.ForgeExtension
 import io.provenance.hdwallet.bip32.toRootKey
 import io.provenance.hdwallet.bip39.DeterministicSeed
 import io.provenance.hdwallet.bip39.MnemonicWords
@@ -11,9 +16,16 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import java.util.stream.Collectors
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
+import java.lang.IllegalArgumentException
 
+@ExtendWith(ForgeExtension::class)
 class TestWallet {
+
     private data class WalletData(
         val path: String,
         val address: String,
@@ -24,12 +36,56 @@ class TestWallet {
 
     private data class Tv(val seed: DeterministicSeed, val data: List<WalletData>)
 
+    private class TvForgedPath(): ForgeryFactory<Tv> {
+        override fun getForgery(forge: Forge): Tv {
+            return Tv (
+                MnemonicWords.of("gun green cherry guitar barely mango chaos rice absent regular wide since")
+                    .toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData(
+                        forge.aString(),
+                        "cosmos1tmzzt4qqy9hm6flv7pf06l59p5wg2dgy729p80",
+                        "cosmospub1addwnpepqd8netmxxay2arfkvlukvehdgzs68gxaysxad603nzuae3uq52jckfjkutw",
+                        "CSOPY3BBQEEGn2LBblYzt0Z3iyp/kW+W35oRBruVE2g=",
+                        ""
+                    )
+                )
+            )
+        }
+    }
+
+    private class TvForgedSeed(): ForgeryFactory<Tv> {
+        override fun getForgery(forge: Forge): Tv {
+            return Tv (
+                MnemonicWords.of(forge.aList(18) { forge.anAlphaNumericalString() }.joinToString(" "))
+                    .toSeed("trezor".toCharArray()),
+                listOf(
+                    WalletData(
+                        "m/44'/118'/0'/0/0",
+                        "cosmos1tmzzt4qqy9hm6flv7pf06l59p5wg2dgy729p80",
+                        "cosmospub1addwnpepqd8netmxxay2arfkvlukvehdgzs68gxaysxad603nzuae3uq52jckfjkutw",
+                        "CSOPY3BBQEEGn2LBblYzt0Z3iyp/kW+W35oRBruVE2g=",
+                        ""
+                    )
+                )
+            )
+        }
+    }
+
     private fun runBIP32SyncTestVectors(seed: DeterministicSeed, vectors: List<WalletData>) {
         vectors.map { runBip32Test(seed, it) }
     }
 
     private fun runFromSeedSyncTestVectors(seed: DeterministicSeed, vectors: List<WalletData>) {
         vectors.map { runFromSeedTest(seed, it) }
+    }
+
+    private fun runFromSeedSyncTestVectorsPass(seed: DeterministicSeed, vectors: List<WalletData>) {
+        vectors.map { runFromSeedTestPass(seed, it) }
+    }
+
+    private fun runFromSeedSyncTestVectorsFail(seed: DeterministicSeed, vectors: List<WalletData>) {
+        vectors.map { runFromSeedTestFail(seed, it) }
     }
 
     @Suppress("UNUSED_VARIABLE")
@@ -45,7 +101,26 @@ class TestWallet {
         val wallet = Wallet.fromSeed("cosmos", seed)
         val childKey = wallet[walletData.path]
         val sig = childKey.sign("test".toByteArray().sha256())
-        assertEquals(childKey.address.toString(), walletData.address)
+    }
+
+    @Suppress("UNUSED_VARIABLE")
+    private fun runFromSeedTestPass(seed: DeterministicSeed, walletData: WalletData) {
+        val wallet = Wallet.fromSeed("cosmos", seed)
+        val childKey = wallet[walletData.path]
+        val sig = childKey.sign("test".toByteArray().sha256())
+        assertNotNull(wallet)
+        assertNotNull(childKey.address)
+    }
+
+    @Suppress("UNUSED_VARIABLE")
+    private fun runFromSeedTestFail(seed: DeterministicSeed, walletData: WalletData) {
+        val wallet = Wallet.fromSeed("cosmos", seed)
+        assertNotNull(wallet)
+        if(walletData.path != "m") {
+            assertThrows<IllegalArgumentException> {
+                val childKey = wallet[walletData.path]
+            }
+        }
     }
 
     private fun runBIP32AsyncTestVectors(vectors: List<Tv>) {
@@ -105,6 +180,24 @@ class TestWallet {
     fun testWalletAsyncFromBip32() = runBIP32AsyncTestVectors(
         getVectors()
     )
+
+    @RepeatedTest(10)
+    fun testWalletSyncFromFuzzSeed(forge: Forge) {
+        forge.addFactory(Tv::class.java, TvForgedSeed())
+        val tv = forge.aList { forge.getForgery<Tv>() }
+        tv.map {
+            runFromSeedSyncTestVectorsPass(it.seed, it.data)
+        }
+    }
+
+    @RepeatedTest(10)
+    fun testWalletSyncFromFuzzPath(forge: Forge) {
+        forge.addFactory(Tv::class.java, TvForgedPath())
+        val tv = forge.aList { forge.getForgery<Tv>() }
+        tv.map {
+            runFromSeedSyncTestVectorsFail(it.seed, it.data)
+        }
+    }
 
     private fun getVectors(): List<Tv> {
         // Test data source of truth from here: https://iancoleman.io/bip39/ pass phrase is 'trezor', coin is 'ATOM', and derivation path is BIP44
