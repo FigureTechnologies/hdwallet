@@ -2,8 +2,6 @@ package io.provenance.hdwallet.wallet
 
 import fr.xgouchet.elmyr.Forge
 import fr.xgouchet.elmyr.ForgeryFactory
-import fr.xgouchet.elmyr.annotation.Forgery
-import fr.xgouchet.elmyr.junit5.ForgeConfiguration
 import fr.xgouchet.elmyr.junit5.ForgeExtension
 import io.provenance.hdwallet.bip32.toRootKey
 import io.provenance.hdwallet.bip39.DeterministicSeed
