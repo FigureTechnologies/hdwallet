@@ -8,4 +8,5 @@ object Versions {
     const val junit = "5.8.2"
     const val coroutines = "1.5.2"
     const val nexusPublishPlugin = "1.1.0"
+    const val elmyr = "1.3.4"
 }

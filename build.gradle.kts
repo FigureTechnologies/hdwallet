@@ -74,6 +74,7 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 
     dependencies {
@@ -90,6 +91,10 @@ subprojects {
         testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.coroutines)
         testImplementation("org.junit.jupiter", "junit-jupiter-api", Versions.junit)
         testImplementation("org.junit.jupiter", "junit-jupiter-engine", Versions.junit)
+        testImplementation("com.github.xgouchet.Elmyr", "core", Versions.elmyr)
+        testImplementation("com.github.xgouchet.Elmyr", "junit5", Versions.elmyr)
+        testImplementation("com.github.xgouchet.Elmyr", "inject", Versions.elmyr)
+        testImplementation("com.github.xgouchet.Elmyr", "jvm", Versions.elmyr)
     }
 
     tasks {
