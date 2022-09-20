@@ -8,11 +8,11 @@ HDWallet is a collection of helper utilities to ease use of hierarchical determi
 
 Current published version:
 
-![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.provenance.hdwallet/hdwallet/badge.svg)
+![Maven Central](https://maven-badges.herokuapp.com/maven-central/tech.figure.hdwallet/hdwallet/badge.svg)
 
 ```xml
 <dependency>
-  <groupId>io.provenance.hdwallet</groupId>
+  <groupId>tech.figure.hdwallet</groupId>
   <artifactId>hdwallet</artifactId>
   <version>${version}</version>
 </dependency>
@@ -21,7 +21,7 @@ Current published version:
 ## Gradle
 
 ```kotlin
-implementation("io.provenance.hdwallet", "hdwallet", "$version")
+implementation("tech.figure.hdwallet", "hdwallet", "$version")
 ```
 
 # Quickstart

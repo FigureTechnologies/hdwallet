@@ -30,7 +30,7 @@ nexusPublishing {
     }
 }
 
-val projectGroup = "io.provenance.hdwallet"
+val projectGroup = "tech.figure.hdwallet"
 val projectVersion = project.property("version")?.takeIf { it != "unspecified" } ?: "1.0-SNAPSHOT"
 
 group = projectGroup
