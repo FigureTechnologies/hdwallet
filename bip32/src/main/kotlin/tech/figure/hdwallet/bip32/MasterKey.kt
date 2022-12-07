@@ -18,6 +18,7 @@ import java.nio.ByteOrder
 import java.security.KeyException
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import tech.figure.hdwallet.bip44.PathElement
 
 private val BITCOIN_SEED = "Bitcoin seed".toByteArray(Charsets.UTF_8)
 private const val HMAC_SHA512 = "HmacSHA512"
@@ -94,8 +95,11 @@ data class ExtKey(
         return bb.array()
     }
 
+    fun childKey(path: List<PathElement>): ExtKey =
+        path.fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
+
     fun childKey(path: String): ExtKey =
-        path.parseBIP44Path().fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
+        childKey(path.parseBIP44Path())
 
     fun childKey(index: Int, hardened: Boolean = true): ExtKey {
         if (depth == AccountType.ADDRESS) {
@@ -168,7 +172,7 @@ data class ExtKey(
             val sequence = bb.int
             val hardened = (sequence and BIP44_HARDENING_FLAG) != 0
             val accountNumber =
-                if (!hardened) sequence xor BIP44_HARDENING_FLAG
+                if (hardened) sequence xor BIP44_HARDENING_FLAG
                 else sequence
             val chainCode = bb.getByteArray(CHAINCODE_SIZE)
             val hasPrivate = ver.contentEquals(xprv) || ver.contentEquals(tprv)
