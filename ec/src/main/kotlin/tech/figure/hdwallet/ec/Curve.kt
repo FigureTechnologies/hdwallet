@@ -15,8 +15,10 @@ import java.security.spec.EllipticCurve
 
 /**
  * Defines an elliptic curve point.
+ *
+ * @property ecPoint
  */
-class CurvePoint(val ecPoint: ECPoint) {
+class CurvePoint internal constructor(val ecPoint: ECPoint) {
     val x: BigInteger = ecPoint.xCoord.toBigInteger()
     val y: BigInteger = ecPoint.yCoord.toBigInteger()
     val isInfinity: Boolean = ecPoint.isInfinity
@@ -25,12 +27,8 @@ class CurvePoint(val ecPoint: ECPoint) {
     fun mul(n: BigInteger): CurvePoint = ecPoint.multiply(n).toCurvePoint()
     fun add(n: CurvePoint): CurvePoint = ecPoint.add(n.ecPoint).toCurvePoint()
     fun normalize(): CurvePoint = ecPoint.normalize().toCurvePoint()
-
-    fun toJavaECPoint(): java.security.spec.ECPoint =
-        java.security.spec.ECPoint(x, y)
-
-    fun toBCECPoint(curve: ECCurve): ECPoint =
-        EC5Util.convertPoint(curve, toJavaECPoint())
+    fun toJavaECPoint(): java.security.spec.ECPoint = java.security.spec.ECPoint(x, y)
+    fun toBCECPoint(curve: ECCurve): ECPoint = EC5Util.convertPoint(curve, toJavaECPoint())
 }
 
 /**
@@ -40,7 +38,7 @@ class CurvePoint(val ecPoint: ECPoint) {
  * @property g
  * @property ecCurve
  */
-data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCurve) {
+data class Curve internal constructor(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCurve) {
     val ecDomainParameters: ECDomainParameters = ECDomainParameters(ecCurve, g.ecPoint, n)
 
     fun decodePoint(data: ByteArray): CurvePoint = ecCurve.decodePoint(data).toCurvePoint()
@@ -70,17 +68,36 @@ data class Curve(val n: BigInteger, val g: CurvePoint, private val ecCurve: ECCu
     }
 }
 
-val secp256k1Curve = Curve.lookup("secp256k1")
+/**
+ * SECP256K1 curve.
+ *
+ * See https://en.bitcoin.it/wiki/Secp256k1
+ */
+val secp256k1Curve: Curve = Curve.lookup("secp256k1")
 
-val secp256r1Curve = Curve.lookup("secp256r1")
+/**
+ * SECP256R1 curve.
+ *
+ * See:
+ * - https://www.ietf.org/rfc/rfc5480.txt
+ * - https://neuromancer.sk/std/secg/secp256r1
+ * - https://www.johndcook.com/blog/2018/08/21/a-tale-of-two-elliptic-curves/
+ */
+val secp256r1Curve: Curve = Curve.lookup("secp256r1")
 
 /**
  * Provenance defaults to the secp256k1 EC curve for keys and signatures.
  */
-val DEFAULT_CURVE = secp256k1Curve
+val DEFAULT_CURVE: Curve = secp256k1Curve
 
+/**
+ * Get the Java EC parameter spec from the [Curve].
+ */
 val Curve.ecParameterSpec: ECParameterSpec
     get() = ECParameterSpec(toJavaEllipticCurve(), g.toJavaECPoint(), n, ecDomainParameters.h.toInt())
 
+/**
+ * Get the BouncyCastle EC parameter spec from the [Curve].
+ */
 val Curve.bcecParameterSpec: BCECParameterSpec
     get() = toBCEllipticCurve().let { bcCurve -> BCECParameterSpec(bcCurve, g.toBCECPoint(bcCurve), n, ecDomainParameters.h) }

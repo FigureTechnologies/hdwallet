@@ -1,28 +1,33 @@
 package tech.figure.hdwallet.ec.extensions
 
 import java.math.BigInteger
+import tech.figure.hdwallet.ec.Curve
+import tech.figure.hdwallet.ec.decompressPublicKey
 
 /**
  * Pack a byte array into an unsigned [BigInteger].
  *
  * @return [BigInteger]
  */
-fun ByteArray.toBigInteger() = BigInteger(1, this)
+@Deprecated("Potentially wrong usage", replaceWith = ReplaceWith("ByteArray.packIntoBigInteger"))
+fun ByteArray.toBigInteger(): BigInteger = BigInteger(1, this)
 
 /**
- * Unpack a [BigInteger] into a padded [ByteArray].
+ * Convert a byte array to [BigInteger], using the supplied curve.
  *
- * @param length The final length of the returned byte array.
- * @return The padded [ByteArray].
+ * See [decompressPublicKey] for details.
+ *
+ * - If [legacy] is false (the default), the returned [BigInteger] will be 65 bytes
+ * - If [legacy] is true (the default), the returned [BigInteger] will be 64 bytes
+ *
+ * @property curve The EC curve to use when interpreting the contents of this byte array as a coordinate.
+ * @property legacy
  */
-fun BigInteger.toBytesPadded(length: Int): ByteArray {
-    val result = ByteArray(length)
-    val bytes = toByteArray()
-    val offset = if (bytes[0].toInt() == 0) 1 else 0
-    if (bytes.size - offset > length) {
-        throw RuntimeException("Input is too large to put in byte array of size $length")
-    }
+fun ByteArray.toBigInteger(curve: Curve, legacy: Boolean = false) = decompressPublicKey(this, curve, legacy)
 
-    val destOffset = length - bytes.size + offset
-    return bytes.copyInto(result, destinationOffset = destOffset, startIndex = offset)
-}
+/**
+ * Pack a byte array into an unsigned [BigInteger].
+ *
+ * @return [BigInteger]
+ */
+fun ByteArray.packIntoBigInteger(): BigInteger = BigInteger(1, this)

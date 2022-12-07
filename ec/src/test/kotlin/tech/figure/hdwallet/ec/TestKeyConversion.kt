@@ -1,5 +1,12 @@
 package tech.figure.hdwallet.ec
 
+import java.math.BigInteger
+import java.security.KeyPair
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import tech.figure.hdwallet.common.bc.registerBouncyCastle
 import tech.figure.hdwallet.ec.extensions.toBCECPrivateKey
 import tech.figure.hdwallet.ec.extensions.toBCECPublicKey
@@ -12,13 +19,6 @@ import tech.figure.hdwallet.ec.extensions.toJavaECPrivateKey
 import tech.figure.hdwallet.ec.extensions.toJavaECPublicKey
 import tech.figure.hdwallet.ec.extensions.toKeyPair
 import tech.figure.hdwallet.ec.util.createECKeyPair
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import java.math.BigInteger
-import java.security.KeyPair
 import java.security.PrivateKey as JavaPrivateKey
 import java.security.PublicKey as JavaPublicKey
 
@@ -42,6 +42,11 @@ class TestKeyConversion {
     }
 
     @Test
+    fun testDecodingPublicKeyFromBase64String() {
+        PublicKey.fromString("AmqcgLOp640tgccRYL/+PtKftP0NwHcDNzUiHNsJV+gb").toJavaECPublicKey()
+    }
+
+    @Test
     @DisplayName("PublicKey: hdwallet -> Java -> hdwallet")
     fun testECPublicKeyConversion() {
         val javaPublicKey = fixturePublicKey.toJavaECPublicKey()
@@ -54,7 +59,7 @@ class TestKeyConversion {
     fun testECPublicKeyConversionCompressed() {
         // Check the encoding
         val encodedDecompressedPublicKey: PublicKey = PublicKey(
-            decompressPublicKey(fixturePublicKey.compressed(), fixturePublicKey.curve, encode = true),
+            decompressPublicKey(fixturePublicKey.compressed(), fixturePublicKey.curve, legacy = true),
             fixturePublicKey.curve
         )
         val encodedIntBytes: ByteArray = encodedDecompressedPublicKey.key.toByteArray()

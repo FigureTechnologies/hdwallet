@@ -18,6 +18,7 @@ import java.nio.ByteOrder
 import java.security.KeyException
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import tech.figure.hdwallet.ec.extensions.packIntoBigInteger
 
 private val BITCOIN_SEED = "Bitcoin seed".toByteArray(Charsets.UTF_8)
 private const val HMAC_SHA512 = "HmacSHA512"
@@ -129,7 +130,7 @@ data class ExtKey(
         val lr = hmacSha512(chainCode.bytes, ext)
         val l = lr.copyOfRange(0, PRIVATE_KEY_SIZE)
         val r = lr.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)
-        val ib = l.toBigInteger()
+        val ib = l.packIntoBigInteger()
         require(ib != BigInteger.ZERO && ib < curve.n) {
             "invalid derived key"
         }
@@ -153,7 +154,7 @@ data class ExtKey(
                 .normalize()
             require(!q.isInfinity) { "invalid derived key is zeros" }
             val pt = curve.createPoint(q.x, q.y).encoded(false)
-            val pubk = PublicKey(pt.copyOfRange(1, pt.size).toBigInteger(), curve)
+            val pubk = PublicKey(pt.copyOfRange(1, pt.size).packIntoBigInteger(), curve)
             val prvk = PrivateKey(BigInteger.ZERO, curve)
             ExtKey(versionBytes, nextDepth, fingerprint, account, nextChainCode, ECKeyPair(prvk, pubk))
         }
@@ -211,7 +212,7 @@ fun DeterministicSeed.toRootKey(
     val il = i.copyOfRange(0, PRIVATE_KEY_SIZE)
     val ir = i.copyOfRange(PRIVATE_KEY_SIZE, PRIVATE_KEY_SIZE + CHAINCODE_SIZE)
 
-    val ib = il.toBigInteger()
+    val ib = il.packIntoBigInteger()
     if (ib == BigInteger.ZERO || ib >= curve.n) {
         throw RuntimeException("Invalid key")
     }
