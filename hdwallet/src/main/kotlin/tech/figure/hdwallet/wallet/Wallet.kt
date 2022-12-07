@@ -182,13 +182,3 @@ interface Account {
 interface Discoverer {
     fun discover(account: Account, query: (path: String) -> List<Account>): List<Account>
 }
-
-fun main() {
-    val oldPath = "m/44'/1'/0'/0/0'"
-    val bip = "tprv8ZgxMBicQKsPdrxuJ4ysJFdiqsGREQ6osTJTisi1Pu8HS85cDkikq3Etzdvvr8EwMAMR7RNCjiETbFC3RHGQvBMSMJEhm3CX1mzmuGwGL61"
-    val rootAccount = Account.fromBip32("tp", bip)
-    val childAccount = rootAccount[oldPath]
-
-    // tp1apnhcu9x5cz2l8hhgnj0hg7ez53jah7hcan000
-    println(childAccount.address)
-}
