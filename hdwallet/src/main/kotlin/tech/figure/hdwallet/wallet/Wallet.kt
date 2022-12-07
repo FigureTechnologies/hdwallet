@@ -13,6 +13,7 @@ import tech.figure.hdwallet.ec.Curve
 import tech.figure.hdwallet.ec.ECKeyPair
 import tech.figure.hdwallet.encoding.base58.base58DecodeChecked
 import java.security.KeyException
+import tech.figure.hdwallet.bip44.parseBIP44Path
 
 /**
  * Wallets are the root key representation used to derive [Account]s.
@@ -152,6 +153,10 @@ interface Account {
      */
     operator fun get(index: Int, hardened: Boolean = true): Account
 
+    operator fun get(path: List<PathElement>): Account
+
+    operator fun get(path: String): Account
+
     companion object {
         /**
          * Convert a base58 check encoded bip32 serialized extended key back into an account.
@@ -176,4 +181,14 @@ interface Account {
  */
 interface Discoverer {
     fun discover(account: Account, query: (path: String) -> List<Account>): List<Account>
+}
+
+fun main() {
+    val oldPath = "m/44'/1'/0'/0/0'"
+    val bip = "tprv8ZgxMBicQKsPdrxuJ4ysJFdiqsGREQ6osTJTisi1Pu8HS85cDkikq3Etzdvvr8EwMAMR7RNCjiETbFC3RHGQvBMSMJEhm3CX1mzmuGwGL61"
+    val rootAccount = Account.fromBip32("tp", bip)
+    val childAccount = rootAccount[oldPath]
+
+    // tp1apnhcu9x5cz2l8hhgnj0hg7ez53jah7hcan000
+    println(childAccount.address)
 }
