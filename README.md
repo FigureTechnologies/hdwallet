@@ -94,7 +94,7 @@ import tech.figure.hdwallet.ec.extensions.toJavaECPublicKey
 import java.security.PublicKey as JavaPublicKey
 
 val encoded: String = "AmqcgLOp640tgccRYL/+PtKftP0NwHcDNzUiHNsJV+gb"
-val pubKey: JavaPublicKey = PublicKey.fromString().toJavaECPublicKey()
+val pubKey: JavaPublicKey = PublicKey.fromString(encoded).toJavaECPublicKey()
 ```
 
 ### Convert between private key types

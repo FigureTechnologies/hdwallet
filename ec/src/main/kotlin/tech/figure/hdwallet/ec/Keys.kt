@@ -50,13 +50,15 @@ class PublicKey(val key: BigInteger, val curve: Curve) {
          * Create a [PublicKey] from an array of bytes using the default curve, [secp256k1Curve].
          *
          * @param bytes The byte array to decode.
+         * @return The [PublicKey]
          */
         fun fromBytes(bytes: ByteArray): PublicKey = fromBytes(bytes, DEFAULT_CURVE)
 
         /**
          * Create a [PublicKey] from a base64 encoded string using the default curve, [secp256k1Curve].
          *
-         * @param bytes The base-64 encoded bytes to decode.
+         * @param encoded The base-64 encoded bytes to decode.
+         * @return The [PublicKey]
          */
         fun fromString(encoded: String): PublicKey = fromBytes(Base64.getDecoder().decode(encoded), DEFAULT_CURVE)
 
@@ -67,6 +69,7 @@ class PublicKey(val key: BigInteger, val curve: Curve) {
          *
          * @param bytes The raw byte array to decode.
          * @param curve The EC curve to use when decoding [bytes] into a coordinate.
+         * @return The [PublicKey]
          */
         fun fromBytes(bytes: ByteArray, curve: Curve): PublicKey = PublicKey(decompressPublicKey(bytes, curve), curve)
     }
@@ -79,5 +82,10 @@ class PublicKey(val key: BigInteger, val curve: Curve) {
  * @property publicKey The public key.
  */
 data class ECKeyPair(val privateKey: PrivateKey, val publicKey: PublicKey) {
+    /**
+     * Convert this [ECKeyPair] instance to a [Pair] of [PublicKey], [PrivateKey].
+     *
+     * @return The converted [Pair].
+     */
     fun toPair(): Pair<PrivateKey, PublicKey> = Pair(privateKey, publicKey)
 }

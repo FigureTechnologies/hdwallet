@@ -16,7 +16,7 @@ import java.security.spec.EllipticCurve
 /**
  * Defines an elliptic curve point.
  *
- * @property ecPoint
+ * @property ecPoint The curve point.
  */
 class CurvePoint internal constructor(val ecPoint: ECPoint) {
     val x: BigInteger = ecPoint.xCoord.toBigInteger()

@@ -20,10 +20,11 @@ fun ByteArray.toBigInteger(): BigInteger = BigInteger(1, this)
  * - If [legacy] is false (the default), the returned [BigInteger] will be 65 bytes
  * - If [legacy] is true (the default), the returned [BigInteger] will be 64 bytes
  *
- * @property curve The EC curve to use when interpreting the contents of this byte array as a coordinate.
- * @property legacy
+ * @param curve The EC curve to use when interpreting the contents of this byte array as a coordinate.
+ * @param legacy Toggle legacy encoding behavior. See the note in the description for details.
+ * @return [BigInteger]
  */
-fun ByteArray.toBigInteger(curve: Curve, legacy: Boolean = false) = decompressPublicKey(this, curve, legacy)
+fun ByteArray.toBigInteger(curve: Curve, legacy: Boolean = false): BigInteger = decompressPublicKey(this, curve, legacy)
 
 /**
  * Pack a byte array into an unsigned [BigInteger].

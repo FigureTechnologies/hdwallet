@@ -43,7 +43,9 @@ class TestKeyConversion {
 
     @Test
     fun testDecodingPublicKeyFromBase64String() {
-        PublicKey.fromString("AmqcgLOp640tgccRYL/+PtKftP0NwHcDNzUiHNsJV+gb").toJavaECPublicKey()
+        val pubKey = PublicKey.fromString("AmqcgLOp640tgccRYL/+PtKftP0NwHcDNzUiHNsJV+gb").toJavaECPublicKey()
+        assert(pubKey.algorithm == "EC")
+        assert(pubKey.format == "X.509")
     }
 
     @Test

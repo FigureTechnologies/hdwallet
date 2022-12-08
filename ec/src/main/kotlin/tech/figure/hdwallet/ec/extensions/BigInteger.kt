@@ -26,5 +26,6 @@ fun BigInteger.toBytesPadded(length: Int): ByteArray {
  * Convert a [BigInteger] to an EC [PrivateKey] using the supplied curve
  *
  * @param curve The curve to use when creating the key. See [tech.figure.hdwallet.ec.secp256k1Curve]
+ * @return The [PrivateKey] instance.
  */
 fun BigInteger.toPrivateKey(curve: Curve): PrivateKey = PrivateKey(this, curve)
