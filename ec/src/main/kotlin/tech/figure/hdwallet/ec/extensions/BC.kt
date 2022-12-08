@@ -20,7 +20,7 @@ fun X9ECParameters.toCurve(): Curve = Curve(n, g.toCurvePoint(), curve)
 
 fun ECPoint.toCurvePoint(): CurvePoint = CurvePoint(this)
 
-fun ECParameterSpec.toCurve() = Curve(n, g.toCurvePoint(), curve)
+fun ECParameterSpec.toCurve(): Curve = Curve(n, g.toCurvePoint(), curve)
 
 /**
  * Convert a BouncyCastle [BCECPublicKey] to a [Pair] of ([BigInteger], [Curve]).
