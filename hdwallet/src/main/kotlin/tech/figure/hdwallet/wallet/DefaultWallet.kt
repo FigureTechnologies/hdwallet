@@ -37,4 +37,10 @@ class DefaultAccount(
 
     override fun get(index: Int, hardened: Boolean): Account =
         DefaultAccount(hrp, key.childKey(index, hardened), signer)
+
+    override fun get(path: List<PathElement>): Account =
+        DefaultAccount(hrp, key.childKey(path))
+
+    override fun get(path: String): Account =
+        DefaultAccount(hrp, key.childKey(path))
 }
