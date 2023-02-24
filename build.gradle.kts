@@ -51,7 +51,7 @@ subprojects {
 
     jacoco {
         // Workaround for https://youtrack.jetbrains.com/issue/KT-44757
-        toolVersion = "0.8.7"
+        toolVersion = "0.8.8"
     }
 
     project.ext.properties["kotlin_version"] = Versions.kotlin
