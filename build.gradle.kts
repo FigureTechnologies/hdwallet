@@ -9,6 +9,7 @@ plugins {
     kotlin("jvm") version(libs.versions.kotlin.get())
 }
 
+// This has to be at the top level as per the plugin requirements.
 nexusPublishing {
     repositories {
         sonatype {
@@ -21,6 +22,8 @@ nexusPublishing {
     }
 }
 
+// At some point this should go away, but I was having trouble getting kotlin plugin to apply
+// using the with-core local plugin, so defaulted back to the "old way"... because it actually works.
 subprojects {
     apply {
         plugin("maven-publish")
