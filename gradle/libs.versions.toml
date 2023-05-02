@@ -1,0 +1,29 @@
+[versions]
+kotlin = "1.7.21"
+nexusPublish = "1.1.0"
+junit = "5.8.2"
+elmyr = "1.3.4"
+grpc = "1.51.0"
+coroutines = "1.6.4"
+jackson = "2.13.1"
+bouncyCastle = "1.70"
+commonsCodec = "1.15"
+provenanceProto = "1.13.1"
+provenanceGrpcClient = "1.3.0"
+
+[libraries]
+bouncyCastle = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncyCastle" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+provenance-proto-kotlin = { module = "io.provenance:proto-kotlin", version.ref = "provenanceProto" }
+provenance-grpc-client = { module = "io.provenance.client:pb-grpc-client-kotlin", version.ref = "provenanceGrpcClient" }
+
+[bundles]
+junit = ["junit-jupiter-api", "junit-jupiter-engine"]
+
+[plugins]
+nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }

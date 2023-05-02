@@ -1,3 +1,8 @@
+plugins {
+    id("with-core")
+    id("with-testing")
+}
+
 dependencies {
-    implementation("commons-codec", "commons-codec", Versions.commonsCodec)
+    implementation(libs.commons.codec)
 }

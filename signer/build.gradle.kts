@@ -1,6 +1,14 @@
-dependencies {
-    implementation(project(":ec"))
+plugins {
+    id("with-core")
+    id("with-testing")
+}
 
-    listOf(":base58", ":bip32", ":bip39", ":common", ":hdwallet")
-        .map { testImplementation(project(it)) }
+dependencies {
+    implementation(projects.ec)
+
+    testImplementation(projects.base58)
+    testImplementation(projects.bip32)
+    testImplementation(projects.bip39)
+    testImplementation(projects.common)
+    testImplementation(projects.hdwallet)
 }

@@ -1,4 +1,9 @@
+plugins {
+    id("with-core")
+    id("with-testing")
+}
+
 dependencies {
-    implementation(project(":common"))
-    implementation(project(":bech32"))
+    implementation(projects.common)
+    implementation(projects.bech32)
 }
