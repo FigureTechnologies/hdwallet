@@ -27,7 +27,7 @@ object PathElements {
 
 }
 
-internal fun List<PathElement>.toString() =
+internal fun List<PathElement>.toPathString() =
     (listOf("m") + map { it.toString() }).joinToString("/")
 
 const val BIP44_HARDENING_FLAG = 0x80000000.toInt()

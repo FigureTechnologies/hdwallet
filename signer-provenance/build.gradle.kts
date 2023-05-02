@@ -1,8 +1,12 @@
-dependencies {
-    listOf(":hdwallet")
-        .map { api(project(it)) }
+plugins {
+    id("with-core")
+    id("with-publishing")
+}
 
-    implementation("io.grpc", "grpc-protobuf", Versions.grpc)
-    implementation("io.provenance", "proto-kotlin", Versions.provenance)
-    implementation("io.provenance.client", "pb-grpc-client-kotlin", Versions.provenanceClient)
+dependencies {
+    api(projects.hdwallet)
+
+    implementation(libs.grpc.protobuf)
+    implementation(libs.provenance.proto.kotlin)
+    implementation(libs.provenance.grpc.client)
 }

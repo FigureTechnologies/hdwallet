@@ -47,6 +47,7 @@ import java.util.Arrays;
  * numbers), and finally represent the resulting base-58 digits as alphanumeric ASCII characters.
  */
 public class Base58 {
+    /** Base58 alphabet. */
     public static final char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
     private static final char ENCODED_ZERO = ALPHABET[0];
     private static final int[] INDEXES = new int[128];
@@ -153,6 +154,12 @@ public class Base58 {
         return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);
     }
 
+    /**
+     * Decode the input from a base58 string into a BigInteger representation of the byte array.
+     * @param input The base58 encoded input to decode.
+     * @return BigInteger representation of the byte array.
+     * @throws InvalidCharacter if the input contains an invalid character.
+     */
     public static BigInteger decodeToBigInteger(String input) throws InvalidCharacter {
         return new BigInteger(1, decode(input));
     }
@@ -163,8 +170,10 @@ public class Base58 {
      * removed from the returned data.
      *
      * @param input the base58-encoded string to decode (which should include the checksum)
+     * @return byte array of decoded base58 string.
      * @throws InvalidDataLength if the input is not base 58.
      * @throws InvalidChecksum if the checksum does not validate.
+     * @throws InvalidCharacter if the input contains an invalid character.
      */
     public static byte[] decodeChecked(String input) throws InvalidDataLength, InvalidChecksum, InvalidCharacter {
         byte[] decoded  = decode(input);

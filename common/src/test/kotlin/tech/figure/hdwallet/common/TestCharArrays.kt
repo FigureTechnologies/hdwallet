@@ -20,7 +20,7 @@ class TestCharArrays {
         assertArrayEquals(c[0], "thing1thing2".toCharArray())
 
         val d = "".toCharArray().split(' ')
-        assertEquals(1, c.size)
+        assertEquals(1, d.size)
     }
 
     @Test

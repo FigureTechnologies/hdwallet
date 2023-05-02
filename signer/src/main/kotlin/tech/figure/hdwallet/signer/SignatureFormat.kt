@@ -158,7 +158,7 @@ object ASN1 {
      */
     fun decode(bytes: ByteArray): BigIntegerPair =
         ASN1InputStream(bytes).use {
-            var obj: ASN1Primitive? = null
+            var obj: ASN1Primitive?
             val parts: MutableList<BigInteger> = mutableListOf()
             do {
                 obj = it.readObject()

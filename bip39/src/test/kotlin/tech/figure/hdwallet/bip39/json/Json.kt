@@ -7,5 +7,5 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 object Json {
     val om = ObjectMapper().registerKotlinModule()
 
-    inline fun String.asTree(): TreeNode = om.readTree(this)
+    fun String.asTree(): TreeNode = om.readTree(this)
 }
