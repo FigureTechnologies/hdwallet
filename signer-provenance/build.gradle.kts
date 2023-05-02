@@ -1,5 +1,6 @@
 plugins {
     id("with-core")
+    id("with-publishing")
 }
 
 dependencies {

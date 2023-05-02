@@ -163,6 +163,7 @@ public class Base58 {
      * removed from the returned data.
      *
      * @param input the base58-encoded string to decode (which should include the checksum)
+     * @return byte array of decoded base58 string.
      * @throws InvalidDataLength if the input is not base 58.
      * @throws InvalidChecksum if the checksum does not validate.
      */
