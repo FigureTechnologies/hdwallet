@@ -7,7 +7,7 @@ val libs = the<org.gradle.accessors.dm.LibrariesForLibs>()
 val artifactName = if (name.startsWith("hdwallet")) name else "hdwallet-$name"
 
 inner class PublishingInfo {
-    val group = "tech.figure"
+    val group = "tech.figure.hdwallet"
     val name = "Provenance HDWallet Implementation"
     val description = "A collection of libraries to facilitate HDWallet usage"
     val url = "https://figure.tech"
