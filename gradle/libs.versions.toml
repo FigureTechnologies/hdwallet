@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.7.21"
-nexusPublish = "1.1.0"
+nexusPublish = "1.3.0"
 junit = "5.8.2"
 elmyr = "1.3.4"
 grpc = "1.54.1"
