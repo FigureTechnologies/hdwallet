@@ -38,4 +38,8 @@ subprojects {
             jvmTarget = "17"
         }
     }
+
+    tasks.test {
+        useJUnitPlatform {}
+    }
 }
