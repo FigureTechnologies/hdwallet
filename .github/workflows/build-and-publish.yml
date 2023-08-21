@@ -52,5 +52,5 @@ jobs:
         run: |
           ./gradlew publishToSonatype $(if [ "${{github.event.release.prerelease}}" = "true" ]; then echo 'closeSonatypeStagingRepository'; else echo 'closeAndReleaseSonatypeStagingRepository'; fi) \
             -Pversion=$VERSION \
-            -Psigning.keyId="${{ secrets.OSSRH_GPG_SECRET_KEY_ID}" -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg \
+            -Psigning.keyId="${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}" -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" -Psigning.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg \
             --info
