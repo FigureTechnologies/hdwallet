@@ -2,6 +2,8 @@ package tech.figure.hdwallet.wallet
 
 import java.security.KeyException
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tech.figure.hdwallet.bip32.AccountType
@@ -24,8 +26,13 @@ class TestAccount {
     @Test
     fun `indexing from a root Account is successful`() {
         val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
+        assertTrue(rootAccount.isRoot())
+
+        // Child accounts are not root:
         val path = DerivationPath.from("m/44'/1'/0'/0/0")
         val addressAccount = rootAccount[path]
+        assertFalse(addressAccount.isRoot())
+
         val addressAccountExtKey = addressAccount.toExtKey()
         assertEquals(AccountType.ADDRESS, addressAccountExtKey.depth)
     }
@@ -33,18 +40,22 @@ class TestAccount {
     @Test
     fun `indexing from an Account derived from a partial path is successful`() {
         val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
+        assertTrue(rootAccount.isRoot())
 
         val childSubAccount = rootAccount["m/44'/1'/123'"]
         val childSubAccountExtKey = childSubAccount.toExtKey()
         assertEquals(AccountType.GENERAL, childSubAccountExtKey.depth) // general = account
+        assertFalse(childSubAccount.isRoot())
 
         val scopeAccount = childSubAccount[0]
         val scopeAccountExtKey = scopeAccount.toExtKey()
         assertEquals(AccountType.SCOPE, scopeAccountExtKey.depth)
+        assertFalse(scopeAccount.isRoot())
 
         val addressAccount = scopeAccount[0]
         val addressAccountExtKey = addressAccount.toExtKey()
         assertEquals(AccountType.ADDRESS, addressAccountExtKey.depth)
+        assertFalse(addressAccount.isRoot())
     }
 
     @Test

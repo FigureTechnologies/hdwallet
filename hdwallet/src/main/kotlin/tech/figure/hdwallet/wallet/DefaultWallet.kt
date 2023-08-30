@@ -33,6 +33,7 @@ class DefaultAccount(
         key.serialize(publicOnly).base58EncodeChecked()
 
     override val keyPair: ECKeyPair = key.keyPair
+    override fun isRoot(): Boolean = key.depth == ROOT
 
     override fun sign(payload: ByteArray, hash: (ByteArray) -> ByteArray): ByteArray =
         signer.sign(key.keyPair.privateKey, hash(payload)).encodeAsBTC().toByteArray()

@@ -131,6 +131,11 @@ interface Account {
     val keyPair: ECKeyPair
 
     /**
+     * Test if the account is derived from a root extended key
+     */
+    fun isRoot(): Boolean
+
+    /**
      * Serialize this account's extended key to the string xprv / xpub representation.
      * @param publicOnly If true, generate the xpub. If false, generate the xprv.
      * @return The extended key in xprv / xpub string format.
