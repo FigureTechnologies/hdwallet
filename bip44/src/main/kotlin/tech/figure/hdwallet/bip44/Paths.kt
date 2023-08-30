@@ -12,6 +12,23 @@ object PathElements {
     fun from(path: String): List<PathElement> = path.parseBIP44Path()
 }
 
+// test: m/44'/1'/0'/0/0'
+// prod: m/44'/505'/0'/0/0
+
+internal fun String.parseBIP44Path(): List<PathElement> {
+    val s = split("/")
+    require(s[0] == "m") { "No root account m/" }
+    require(s.size <= 6) { "bip44 path too deep" }
+    return s.drop(1).mapIndexed { position, part ->
+        val l = part.takeWhile { c -> c.isDigit() }
+        val n = l.toInt()
+        val r = part.substring(l.length, part.length)
+        val hard = r == "\'" || r.lowercase() == "h"
+        require(r.isEmpty() || hard) { "Invalid hardening: $r" }
+        buildPathElement(position, n, hard)
+    }
+}
+
 internal fun List<PathElement>.toPathString() =
     (listOf("m") + map { it.toString() }).joinToString("/")
 
@@ -28,6 +45,8 @@ internal fun buildPathElement(position: Int, n: Int, hard: Boolean): PathElement
 /**
  * Represents the individual elements of a BIP44-style derivation path, providing
  * typed representations of the components of the derivation path.
+ *
+ * See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
 sealed class PathElement(open val number: Int, open val hardened: Boolean) {
     private fun <R> Boolean.into(t: R, f: R): R = if (this) t else f
@@ -54,22 +73,5 @@ sealed class PathElement(open val number: Int, open val hardened: Boolean) {
 
     data class Index(override val number: Int, override val hardened: Boolean) : PathElement(number, hardened) {
         override fun toString(): String = super.toString()
-    }
-}
-
-// test: m/44'/1'/0'/0/0'
-// prod: m/44'/505'/0'/0/0
-
-fun String.parseBIP44Path(): List<PathElement> {
-    val s = split("/")
-    require(s[0] == "m") { "No root account m/" }
-    require(s.size <= 6) { "bip44 path too deep" }
-    return s.drop(1).mapIndexed { position, part ->
-        val l = part.takeWhile { c -> c.isDigit() }
-        val n = l.toInt()
-        val r = part.substring(l.length, part.length)
-        val hard = r == "\'" || r.lowercase() == "h"
-        require(r.isEmpty() || hard) { "Invalid hardening: $r" }
-        buildPathElement(position, n, hard)
     }
 }

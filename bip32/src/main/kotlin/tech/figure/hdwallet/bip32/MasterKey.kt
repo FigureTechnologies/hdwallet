@@ -2,7 +2,6 @@ package tech.figure.hdwallet.bip32
 
 import tech.figure.hdwallet.bip39.DeterministicSeed
 import tech.figure.hdwallet.bip44.BIP44_HARDENING_FLAG
-import tech.figure.hdwallet.bip44.parseBIP44Path
 import tech.figure.hdwallet.common.hashing.sha256hash160
 import tech.figure.hdwallet.ec.DEFAULT_CURVE
 import tech.figure.hdwallet.ec.Curve
@@ -10,7 +9,6 @@ import tech.figure.hdwallet.ec.ECKeyPair
 import tech.figure.hdwallet.ec.PrivateKey
 import tech.figure.hdwallet.ec.PublicKey
 import tech.figure.hdwallet.ec.decompressPublicKey
-import tech.figure.hdwallet.ec.extensions.toBigInteger
 import tech.figure.hdwallet.ec.extensions.toBytesPadded
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -20,6 +18,7 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import tech.figure.hdwallet.ec.extensions.packIntoBigInteger
 import tech.figure.hdwallet.bip44.PathElement
+import tech.figure.hdwallet.bip44.PathElements
 
 private val BITCOIN_SEED = "Bitcoin seed".toByteArray(Charsets.UTF_8)
 private const val HMAC_SHA512 = "HmacSHA512"
@@ -63,7 +62,7 @@ data class ExtKey(
     val parentKeyFingerprint: ExtKeyFingerprint,
     val childNumber: Int,
     val chainCode: ExtKeyChainCode,
-    val keyPair: ECKeyPair
+    val keyPair: ECKeyPair,
 ) {
     private val curve: Curve = keyPair.privateKey.curve
 
@@ -99,8 +98,7 @@ data class ExtKey(
     fun childKey(path: List<PathElement>): ExtKey =
         path.fold(this) { acc, i -> acc.childKey(i.number, i.hardened) }
 
-    fun childKey(path: String): ExtKey =
-        childKey(path.parseBIP44Path())
+    fun childKey(path: String): ExtKey = childKey(PathElements.from(path))
 
     fun childKey(index: Int, hardened: Boolean = true): ExtKey {
         if (depth == AccountType.ADDRESS) {
@@ -210,7 +208,7 @@ data class ExtKey(
 fun DeterministicSeed.toRootKey(
     publicKeyOnly: Boolean = false,
     testnet: Boolean = false,
-    curve: Curve = DEFAULT_CURVE
+    curve: Curve = DEFAULT_CURVE,
 ): ExtKey {
     val i = hmacSha512(BITCOIN_SEED, value)
     val il = i.copyOfRange(0, PRIVATE_KEY_SIZE)

@@ -13,7 +13,7 @@ import tech.figure.hdwallet.ec.Curve
 import tech.figure.hdwallet.ec.ECKeyPair
 import tech.figure.hdwallet.encoding.base58.base58DecodeChecked
 import java.security.KeyException
-import tech.figure.hdwallet.bip44.parseBIP44Path
+import tech.figure.hdwallet.bip44.DerivationPath
 
 /**
  * Wallets are the root key representation used to derive [Account]s.
@@ -154,6 +154,8 @@ interface Account {
     operator fun get(index: Int, hardened: Boolean = true): Account
 
     operator fun get(path: List<PathElement>): Account
+
+    operator fun get(path: DerivationPath): Account
 
     operator fun get(path: String): Account
 
