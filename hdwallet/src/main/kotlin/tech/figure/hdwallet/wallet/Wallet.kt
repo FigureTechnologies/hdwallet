@@ -131,7 +131,8 @@ interface Account {
     val keyPair: ECKeyPair
 
     /**
-     * Test if the account is derived from a root extended key
+     * Test if the account is considered a root account. An account is considered a root if it is not been derived
+     * from a parent [Account].
      */
     fun isRoot(): Boolean
 
