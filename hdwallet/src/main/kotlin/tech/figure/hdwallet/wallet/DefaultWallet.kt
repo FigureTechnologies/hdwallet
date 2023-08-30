@@ -43,7 +43,5 @@ class DefaultAccount(
 
     override fun get(path: List<PathElement>): Account = DefaultAccount(hrp, key.childKey(path))
 
-    override fun get(path: DerivationPath): Account = get(path.elements())
-
     override fun get(path: String): Account = DefaultAccount(hrp, key.childKey(path))
 }
