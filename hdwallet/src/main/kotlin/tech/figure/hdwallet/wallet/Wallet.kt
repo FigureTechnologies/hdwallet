@@ -20,6 +20,8 @@ import tech.figure.hdwallet.bip44.DerivationPath
  */
 interface Wallet {
     operator fun get(path: List<PathElement>): Account
+
+    operator fun get(path: DerivationPath): Account = get(path.elements())
     operator fun get(path: String): Account = get(PathElements.from(path))
 
     companion object {
@@ -160,8 +162,6 @@ interface Account {
     operator fun get(index: Int, hardened: Boolean = true): Account
 
     operator fun get(path: List<PathElement>): Account
-
-    operator fun get(path: DerivationPath): Account
 
     operator fun get(path: String): Account
 

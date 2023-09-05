@@ -25,12 +25,11 @@ class TestAccount {
 
     @Test
     fun `indexing from a root Account is successful`() {
-        val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
-        assertTrue(rootAccount.isRoot())
+        val wallet = DefaultWallet(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
 
         // Child accounts are not root:
         val path = DerivationPath.from("m/44'/1'/0'/0/0")
-        val addressAccount = rootAccount[path]
+        val addressAccount = wallet[path]
         assertFalse(addressAccount.isRoot())
 
         val addressAccountExtKey = addressAccount.toExtKey()
@@ -39,10 +38,9 @@ class TestAccount {
 
     @Test
     fun `indexing from an Account derived from a partial path is successful`() {
-        val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
-        assertTrue(rootAccount.isRoot())
+        val wallet = DefaultWallet(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
 
-        val childSubAccount = rootAccount["m/44'/1'/123'"]
+        val childSubAccount = wallet["m/44'/1'/123'"]
         val childSubAccountExtKey = childSubAccount.toExtKey()
         assertEquals(AccountType.GENERAL, childSubAccountExtKey.depth) // general = account
         assertFalse(childSubAccount.isRoot())
@@ -60,9 +58,9 @@ class TestAccount {
 
     @Test
     fun `indexing further from a child address Account will fail`() {
-        val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
+        val wallet = DefaultWallet(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
         val path = DerivationPath.from("m/44'/1'/0'/0/0")
-        val addressAccount = rootAccount[path]
+        val addressAccount = wallet[path]
         // Indexing further will fail:
         assertThrows<KeyException> {
             addressAccount[0]
