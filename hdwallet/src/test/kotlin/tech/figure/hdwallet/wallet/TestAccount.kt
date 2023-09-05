@@ -59,7 +59,6 @@ class TestAccount {
     @Test
     fun `indexing further from a child address Account will fail`() {
         val wallet = DefaultWallet(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
-
         val path = DerivationPath.from("m/44'/1'/0'/0/0")
         val addressAccount = wallet[path]
         // Indexing further will fail:
