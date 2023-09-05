@@ -1,12 +1,12 @@
 package tech.figure.hdwallet.bip32
 
 import tech.figure.hdwallet.bip39.DeterministicSeed
-import tech.figure.hdwallet.bip44.parseBIP44Path
 import tech.figure.hdwallet.encoding.base58.base58DecodeChecked
 import tech.figure.hdwallet.encoding.base58.base58EncodeChecked
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import tech.figure.hdwallet.bip44.PathElements
 
 // test: m/44'/1'/0'/0/0'
 // prod: m/44'/505'/0'/0/0
@@ -25,7 +25,7 @@ class TestBIP32 {
         for (vector in vectors) {
             // Generate the child keys of this seed.
             val seed = DeterministicSeed.fromBytes(seedHex.unhex())
-            val path = vector.path.parseBIP44Path()
+            val path = PathElements.from(vector.path)
             val key = path.fold(seed.toRootKey()) { k, next -> k.childKey(next.hardenedNumber, next.hardened) }
 
             // seed -> extKey -> bip32

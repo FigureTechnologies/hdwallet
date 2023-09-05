@@ -3,6 +3,9 @@ package tech.figure.hdwallet.bip44
 /**
  * Defines a typed representation of a BIP44-style derivation path.
  *
+ * Note: for a BIP-44 derivation path to be valid all 5 components (coin, purpose, account, change, index)
+ * MUST be present.
+ *
  * See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
 data class DerivationPath(
@@ -64,7 +67,23 @@ data class DerivationPath(
      */
     fun toBuilder(): Builder = Builder(this)
 
-    override fun toString(): String = listOf(purpose, coinType, account, change, index).toPathString()
+    /**
+     * Returns a list of the elements comprising the derivation path.
+     *
+     * The elements returned correspond to the standard defined in
+     * https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki, specifically
+     *
+     * (1) purpose
+     * (2) coin type
+     * (3) account
+     * (4) change
+     * (5) address index
+     *
+     * in the same order.
+     */
+    fun elements(): List<PathElement> = listOf(purpose, coinType, account, change, index)
+
+    override fun toString(): String = elements().toPathString()
 }
 
 /**
@@ -72,7 +91,7 @@ data class DerivationPath(
  */
 fun Iterable<PathElement>.toDerivationPath(): DerivationPath {
     val elements = this.take(5)
-    check(elements.size == 5) { "Missing path elements" }
+    require(elements.size == 5) { "Missing path elements" }
     check(elements[0] is PathElement.Purpose) { "Path element 0 is not purpose" }
     check(elements[1] is PathElement.CoinType) { "Path element 1 is not coin type" }
     check(elements[2] is PathElement.Account) { "Path element 2 is not account" }

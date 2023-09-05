@@ -43,6 +43,20 @@ class TestBIP44 {
         assertThrows<IllegalArgumentException> {
             "m/1/1/1/1/1/1".parseBIP44Path()
         }
+        assertThrows<IllegalArgumentException> {
+            DerivationPath.from("m/1/1/1/1/1/1")
+        }
+    }
+
+    @Test
+    fun `parsing a path that does not contain coin, purpose, account, change, and index will fail`() {
+        assertThrows<IllegalArgumentException> {
+            DerivationPath.from("m/44'/505'/0'")
+        }
+        assertThrows<IllegalArgumentException> {
+            DerivationPath.from("m/44'/505'/0'/1")
+        }
+        DerivationPath.from("m/44'/505'/0'/1/1")  // OK
     }
 
     @Test
