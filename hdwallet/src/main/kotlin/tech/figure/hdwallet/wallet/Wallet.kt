@@ -22,6 +22,7 @@ interface Wallet {
     operator fun get(path: List<PathElement>): Account
 
     operator fun get(path: DerivationPath): Account = get(path.elements())
+
     operator fun get(path: String): Account = get(PathElements.from(path))
 
     companion object {
@@ -115,6 +116,26 @@ interface Wallet {
             testnet = testnet,
             curve = curve,
         )
+
+        /**
+         * Convert a base58 check encoded bip32 serialized extended key back into an wallet.
+         * Note: the encoded MUST be a root key, otherwise the operation will raise on exception.
+         *
+         * @param hrp The human-readable prefix for the network this key will be used with.
+         * @param bip32 The base58 check encoded xprv / xpub extended key string.
+         * @return [Wallet]
+         */
+        fun fromBip32(hrp: String, bip32: String): Wallet {
+            val data = try {
+                bip32.base58DecodeChecked()
+            } catch (e: Throwable) {
+                // Eat the exception so no sensitive info gets logged.
+                throw KeyException()
+            }
+            // Only root keys are allowed for wallet creation. The [DefaultWallet] constructor will check if the
+            // given key is a root key by checking its depth:
+            return DefaultWallet(hrp, ExtKey.deserialize(data))
+        }
     }
 }
 

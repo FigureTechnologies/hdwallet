@@ -20,23 +20,29 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.lang.IllegalArgumentException
+import org.junit.jupiter.api.Assertions
+import tech.figure.hdwallet.hrp.Hrp
 
 @ExtendWith(ForgeExtension::class)
 class TestWallet {
+
+    private val seed =
+        MnemonicWords.of("letter advice cage absurd amount doctor acoustic avoid letter advice cage absurd amount doctor acoustic avoid letter always")
+            .toSeed("TREZOR".toCharArray())
 
     private data class WalletData(
         val path: String,
         val address: String,
         val publicKey: String,
         val privateKey: String,
-        val signature: String
+        val signature: String,
     )
 
     private data class Tv(val seed: DeterministicSeed, val data: List<WalletData>)
 
-    private class TvForgedPath(): ForgeryFactory<Tv> {
+    private class TvForgedPath() : ForgeryFactory<Tv> {
         override fun getForgery(forge: Forge): Tv {
-            return Tv (
+            return Tv(
                 MnemonicWords.of("gun green cherry guitar barely mango chaos rice absent regular wide since")
                     .toSeed("trezor".toCharArray()),
                 listOf(
@@ -52,9 +58,9 @@ class TestWallet {
         }
     }
 
-    private class TvForgedSeed(): ForgeryFactory<Tv> {
+    private class TvForgedSeed() : ForgeryFactory<Tv> {
         override fun getForgery(forge: Forge): Tv {
-            return Tv (
+            return Tv(
                 MnemonicWords.of(forge.aList(18) { forge.anAlphaNumericalString() }.joinToString(" "))
                     .toSeed("trezor".toCharArray()),
                 listOf(
@@ -114,7 +120,7 @@ class TestWallet {
     private fun runFromSeedTestFail(seed: DeterministicSeed, walletData: WalletData) {
         val wallet = Wallet.fromSeed("cosmos", seed)
         assertNotNull(wallet)
-        if(walletData.path != "m") {
+        if (walletData.path != "m") {
             assertThrows<IllegalArgumentException> {
                 val childKey = wallet[walletData.path]
             }
@@ -346,5 +352,27 @@ class TestWallet {
                 )
             )
         )
+    }
+
+    @Test
+    fun `creating a wallet from a root-level BIP32 encoded key should succeed`() {
+        val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
+        Assertions.assertTrue(rootAccount.isRoot())
+
+        val bip32: String = rootAccount.serializeExtKey()
+        Wallet.fromBip32(Hrp.ProvenanceBlockchain.testnet, bip32)  // OK
+    }
+
+    @Test
+    fun `creating a wallet from a non root-level BIP32 encoded key should fail`() {
+        val rootAccount = DefaultAccount(Hrp.ProvenanceBlockchain.testnet, seed.toRootKey())
+        Assertions.assertTrue(rootAccount.isRoot())
+
+        val child = rootAccount["m/44'/1'/123'"]
+        val bip32: String = child.serializeExtKey()
+
+        assertThrows<IllegalArgumentException> {
+            Wallet.fromBip32(Hrp.ProvenanceBlockchain.testnet, bip32)
+        }
     }
 }
