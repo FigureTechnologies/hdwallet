@@ -162,19 +162,11 @@ val javaKeyPair: KeyPair = keyPair.toJavaECKeyPair()
 
 ### Using with the Provenance gRPC client
 
-```xml
-<dependency>
-  <groupId>tech.figure.hdwallet</groupId>
-  <artifactId>signer-provenance</artifactId>
-  <version>$VERSION</version>
-</dependency>
-```
-
 ```kotlin
 import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
-import tech.figure.hdwallet.signer.WalletSigner
+import io.provenance.client.wallet.WalletSigner
 import tech.figure.hdwallet.wallet.Account
 
 val account: Account = Account.fromBip32(hrp, "<bip32>")

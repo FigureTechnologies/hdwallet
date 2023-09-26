@@ -11,7 +11,6 @@ include("bip39")
 include("bip44")
 include("ec")
 include("signer")
-include("signer-provenance")
 include("hdwallet")
 
 dependencyResolutionManagement {
