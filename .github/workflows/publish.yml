@@ -13,7 +13,7 @@ on:
 jobs:
   java_build:
     name: Build and Publish Jar
-    runs-on: ubuntu-latest
+    runs-on: figure-linux-standard
     steps:
       - name: Checkout
         uses: actions/checkout@v3
