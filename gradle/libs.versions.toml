@@ -6,7 +6,7 @@ elmyr = "1.3.4"
 coroutines = "1.7.0"
 jackson = "2.15.1"
 bouncyCastle = "1.70"
-commonsCodec = "1.15"
+commonsCodec = "1.17.0"
 
 [libraries]
 bouncyCastle = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncyCastle" }
