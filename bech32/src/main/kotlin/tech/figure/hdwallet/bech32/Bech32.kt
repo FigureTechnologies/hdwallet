@@ -44,10 +44,11 @@ object Bech32 {
         }
 
         val dataBytes = dataString.map { c -> charset.indexOf(c).toByte() }.toByteArray()
-        val checkBytes = dataString.takeLast(CHECKSUM_SIZE).map { c -> charset.indexOf(c).toByte() }.toByteArray()
         val actualSum = checksum(hrp, dataBytes.dropLast(CHECKSUM_SIZE).toByteArray())
         require(1 == polymod(expandHrp(hrp).plus(dataBytes.map { d -> d.toInt() }))) {
-            "checksum failed: $checkBytes != $actualSum"
+            val providedCheckSum =  dataString.takeLast(CHECKSUM_SIZE)
+            val actualSumBech32Data = actualSum.map { charset[it.toInt()] }.joinToString("")
+            "checksum failed: got $providedCheckSum but expected $actualSumBech32Data"
         }
 
         return Bech32Data(hrp, dataBytes.dropLast(CHECKSUM_SIZE).toByteArray())
